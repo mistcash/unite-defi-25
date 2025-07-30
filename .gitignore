@@ -1,3 +1,5 @@
 node_modules
 .next
 mist
+/contracts/.deps
+/contracts/artifacts
