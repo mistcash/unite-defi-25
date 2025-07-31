@@ -14,7 +14,8 @@ export const config = createConfig({
 		[base.id]: http(),
 		[mainnet.id]: http(),
 	},
-	ssr: false, // Disable SSR to avoid hydration issues
+	ssr: true,
+	syncConnectedChain: true,
 })
 
 declare module 'wagmi' {

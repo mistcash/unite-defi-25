@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Unite DeFi",
+  title: "MIST - Unite DeFi with ZK",
   description: "Cross-chain transfer application",
 };
 

@@ -261,12 +261,13 @@ export default function HeroUI() {
 		setErrors(prev => ({ ...prev, claimingKey: undefined }));
 	};
 
-	// Auto-generate claiming key when component mounts or destination changes
+	// Auto-generate claiming key when component mounts or destination changes (client-side only)
 	useEffect(() => {
-		if (!claimingKey) {
+		// Only generate if we're on the client side and don't have a key
+		if (typeof window !== 'undefined' && !claimingKey) {
 			generateClaimingKey();
 		}
-	}, [selectedToNetwork]);
+	}, [selectedToNetwork, claimingKey]);
 
 	// Validate claiming key
 	const validateClaimingKey = (value: string) => {
@@ -616,42 +617,40 @@ export default function HeroUI() {
 							Amount
 						</label>
 						<div
-							className="p-4 rounded-lg border"
+							className="flex items-center space-x-3 p-3 rounded-lg border"
 							style={{
 								backgroundColor: 'rgba(63, 63, 63, 0.4)',
 								borderColor: 'rgb(80, 80, 80)'
 							}}
 						>
-							<div className="flex items-center justify-between mb-2">
-								<input
-									type="text"
-									placeholder="0.00"
-									className="bg-transparent text-white text-2xl font-medium outline-none flex-1"
-									defaultValue="1.221633"
-								/>
-								<div className="flex space-x-2">
-									<button
-										className="px-3 py-1 rounded text-sm transition-all hover:opacity-80"
-										style={{
-											backgroundColor: 'rgba(0, 80, 157, 0.6)',
-											color: 'rgb(240, 245, 255)'
-										}}
-									>
-										MIN
-									</button>
-									<button
-										className="px-3 py-1 rounded text-sm transition-all hover:opacity-80"
-										style={{
-											backgroundColor: 'rgba(0, 80, 157, 0.6)',
-											color: 'rgb(240, 245, 255)'
-										}}
-									>
-										MAX
-									</button>
-								</div>
+							<div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: 'rgb(34, 197, 94)' }}>
+								<DollarSign className="w-4 h-4 text-white" />
 							</div>
-							<div className="text-sm opacity-60" style={{ color: 'rgb(240, 245, 255)' }}>
-								Balance: 52000
+							<input
+								type="text"
+								placeholder="0.00"
+								className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none"
+								defaultValue="1.221633"
+							/>
+							<div className="flex space-x-2">
+								<button
+									className="px-3 py-1 rounded text-sm transition-all hover:opacity-80"
+									style={{
+										backgroundColor: 'rgba(0, 80, 157, 0.6)',
+										color: 'rgb(240, 245, 255)'
+									}}
+								>
+									MIN
+								</button>
+								<button
+									className="px-3 py-1 rounded text-sm transition-all hover:opacity-80"
+									style={{
+										backgroundColor: 'rgba(0, 80, 157, 0.6)',
+										color: 'rgb(240, 245, 255)'
+									}}
+								>
+									MAX
+								</button>
 							</div>
 						</div>
 					</div>
