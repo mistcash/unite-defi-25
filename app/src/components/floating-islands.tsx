@@ -4,10 +4,10 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
-	const containerRef = useRef(null);
-	const sceneRef = useRef(null);
-	const rendererRef = useRef(null);
-	const cameraRef = useRef(null);
+	const containerRef = useRef<HTMLDivElement | null>(null);
+	const sceneRef = useRef<THREE.Scene | null>(null);
+	const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
+	const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
 	// const islandsRef = useRef([]);
 	const animationIdRef = useRef<number>(null);
 
@@ -41,7 +41,9 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 
 		// Camera position
 		camera.position.set(0, 10, 20);
-		camera.lookAt(0, 2, 0);
+		camera.lookAt(0, 3, 0);
+		camera.fov = 45;
+		camera.updateProjectionMatrix();
 
 		// Island creation function
 		function createIsland(island: IslandData) {
@@ -60,16 +62,16 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 				color: networkColors[network] || 0x6b7280,
 			});
 
-			const thickness = island.thickness || 0.04; // Default thickness if not specified
+			const thickness = island.thickness || 0.03; // Default thickness if not specified
 			// Create multiple slightly offset line segments to simulate thickness
 			const offsets = [
 				{ x: 0, y: 0, z: 0 },
 				{ x: thickness, y: 0, z: 0 },
-				{ x: -thickness, y: 0, z: 0 },
+				// { x: -thickness, y: 0, z: 0 },
 				{ x: 0, y: thickness, z: 0 },
-				{ x: 0, y: -thickness, z: 0 },
+				// { x: 0, y: -thickness, z: 0 },
 				{ x: 0, y: 0, z: thickness },
-				{ x: 0, y: 0, z: -thickness },
+				// { x: 0, y: 0, z: -thickness },
 			];
 
 			offsets.forEach(offset => {
@@ -211,7 +213,7 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 	}, []);
 
 	return (
-		<div className="relative w-full h-screen overflow-hidden flex items-center justify-center" ref={containerRef}>
+		<div className="relative w-full min-h-screen overflow-hidden flex items-center justify-center">
 			{/* Scene container */}
 			<div
 				ref={containerRef}
