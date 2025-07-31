@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-const FloatingIslands = () => {
+const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 	const containerRef = useRef(null);
 	const sceneRef = useRef(null);
 	const rendererRef = useRef(null);
@@ -211,7 +211,7 @@ const FloatingIslands = () => {
 	}, []);
 
 	return (
-		<div className="relative w-full h-screen overflow-hidden">
+		<div className="relative w-full h-screen overflow-hidden flex items-center justify-center" ref={containerRef}>
 			{/* Scene container */}
 			<div
 				ref={containerRef}
@@ -222,9 +222,8 @@ const FloatingIslands = () => {
 			/>
 
 			{/* Hero content overlay */}
-			<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center font-sans z-10">
-				<h1 className="text-6xl font-bold mb-4">Fintech Solutions</h1>
-				<p className="text-xl">Empowering your financial future with innovative technology.</p>
+			<div className="m-auto text-white">
+				{children}
 			</div>
 		</div>
 	);
