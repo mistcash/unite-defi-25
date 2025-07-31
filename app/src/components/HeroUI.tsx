@@ -1,7 +1,10 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Wallet, Send, Check, AlertCircle, Key, User, Mail, Globe, DollarSign, Coins, Zap } from 'lucide-react';
+import { ChevronDown, Wallet, Send, Check, AlertCircle, AlertTriangle, Key, User, Mail, Globe, DollarSign, Coins, Zap } from 'lucide-react';
+import { useAccount, useConnect, useDisconnect, useSendTransaction, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
+import { parseEther } from 'viem';
+import { base } from 'wagmi/chains';
 
 interface HeroUIError {
 	recipient?: string;
@@ -20,11 +23,15 @@ export default function HeroUI() {
 	const [selectedToNetwork, setSelectedToNetwork] = useState('gmail');
 	const [recipientAddress, setRecipientAddress] = useState('');
 	const [claimingKey, setClaimingKey] = useState('');
-	const [isWalletConnected, setIsWalletConnected] = useState(false);
-	const [walletAddress, setWalletAddress] = useState('');
-	const [txState, setTxState] = useState('idle'); // idle, approving, approved, sending, sent
 	const [errors, setErrors] = useState<HeroUIError>({});
-	const [chainId, setChainId] = useState<string | null>(null);
+
+	// Wagmi hooks
+	const { address, isConnected, chain } = useAccount();
+	const { connect, connectors } = useConnect();
+	const { disconnect } = useDisconnect();
+	const { data: hash, sendTransaction, isPending: isSending, error: sendError } = useSendTransaction();
+	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+	const { switchChain } = useSwitchChain();
 
 	// Popup states
 	const [showFromNetworkPopup, setShowFromNetworkPopup] = useState(false);
@@ -203,124 +210,7 @@ export default function HeroUI() {
 	};
 
 	// Base Chain ID
-	const BASE_CHAIN_ID = '0x2105'; // 8453 in hex
-
-	// Check if wallet is already connected on load
-	useEffect(() => {
-		checkWalletConnection();
-		if (window.ethereum) {
-			window.ethereum.on('accountsChanged', handleAccountsChanged);
-			window.ethereum.on('chainChanged', handleChainChanged);
-		}
-
-		return () => {
-			if (window.ethereum) {
-				window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-				window.ethereum.removeListener('chainChanged', handleChainChanged);
-			}
-		};
-	}, []);
-
-	const checkWalletConnection = async () => {
-		if (window.ethereum) {
-			try {
-				const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-				const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
-
-				if (accounts.length > 0) {
-					setIsWalletConnected(true);
-					setWalletAddress(accounts[0]);
-					setChainId(currentChainId);
-				}
-			} catch (error) {
-				console.error('Error checking wallet connection:', error);
-			}
-		}
-	};
-
-	const handleAccountsChanged = (accounts: string[]) => {
-		if (accounts.length === 0) {
-			setIsWalletConnected(false);
-			setWalletAddress('');
-		} else {
-			setWalletAddress(accounts[0]);
-			setIsWalletConnected(true);
-		}
-	};
-
-	const handleChainChanged = (newChainId: string) => {
-		setChainId(newChainId);
-	};
-
-	const switchToBase = async () => {
-		try {
-			await window.ethereum.request({
-				method: 'wallet_switchEthereumChain',
-				params: [{ chainId: BASE_CHAIN_ID }],
-			});
-		} catch (switchError: any) {
-			// This error code indicates that the chain has not been added to MetaMask
-			if (switchError.code === 4902) {
-				try {
-					await window.ethereum.request({
-						method: 'wallet_addEthereumChain',
-						params: [
-							{
-								chainId: BASE_CHAIN_ID,
-								chainName: 'Base',
-								nativeCurrency: {
-									name: 'Ethereum',
-									symbol: 'ETH',
-									decimals: 18,
-								},
-								rpcUrls: ['https://mainnet.base.org'],
-								blockExplorerUrls: ['https://basescan.org'],
-							},
-						],
-					});
-				} catch (addError) {
-					console.error('Error adding Base network:', addError);
-					throw addError;
-				}
-			} else {
-				throw switchError;
-			}
-		}
-	};
-
-	// Real wallet connection
-	const connectWallet = async () => {
-		if (!window.ethereum) {
-			alert('Please install MetaMask or another Ethereum wallet');
-			return;
-		}
-
-		try {
-			setTxState('approving');
-
-			// Request account access
-			const accounts = await window.ethereum.request({
-				method: 'eth_requestAccounts',
-			});
-
-			const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
-
-			setIsWalletConnected(true);
-			setWalletAddress(accounts[0]);
-			setChainId(currentChainId);
-			setTxState('idle');
-
-			console.log('Connected accounts:', accounts, currentChainId);
-
-			// Switch to Base if not already on it
-			if (currentChainId !== BASE_CHAIN_ID) {
-				await switchToBase();
-			}
-		} catch (error) {
-			console.error('Failed to connect wallet:', error);
-			setTxState('idle');
-		}
-	};
+	const BASE_CHAIN_ID = base.id;
 
 	// Validate recipient address/email
 	const validateRecipient = (value: string, destination: string) => {
@@ -385,7 +275,7 @@ export default function HeroUI() {
 		return undefined;
 	};
 
-	// Real approve and send functionality
+	// Handle approve and send functionality using wagmi
 	const handleApproveAndSend = async () => {
 		const recipientError = validateRecipient(recipientAddress, selectedToNetwork.toLowerCase());
 		const claimingKeyError = validateClaimingKey(claimingKey);
@@ -399,100 +289,50 @@ export default function HeroUI() {
 			return;
 		}
 
-		if (!isWalletConnected) {
-			await connectWallet();
+		if (!isConnected) {
+			// Connect to the first available connector (usually MetaMask/injected)
+			const connector = connectors.find(c => c.type === 'injected') || connectors[0];
+			if (connector) {
+				connect({ connector });
+			}
 			return;
 		}
 
 		try {
 			// Ensure we're on Base network for Base transfers
-			if (selectedToNetwork.toLowerCase() === 'base' && chainId !== BASE_CHAIN_ID) {
-				await switchToBase();
+			if (selectedToNetwork.toLowerCase() === 'base' && chain?.id !== BASE_CHAIN_ID) {
+				switchChain({ chainId: BASE_CHAIN_ID });
+				return;
 			}
 
 			if (selectedToNetwork.toLowerCase() === 'gmail') {
 				// Handle Gmail transfers (would integrate with your MIST system)
-				setTxState('sending');
-				// Simulate Gmail transfer
-				await new Promise(resolve => setTimeout(resolve, 2000));
-				setTxState('sent');
-				setTimeout(() => setTxState('idle'), 3000);
+				// This would be handled differently, possibly through an API call
+				alert('Gmail transfer integration not implemented yet');
 				return;
 			}
 
-			// Handle blockchain transfers
-			setTxState('approving');
-
-			// For demo purposes - replace with actual token contract calls
-			if (selectedToken.toLowerCase() === 'usdc' || selectedToken.toLowerCase() === 'usdt') {
-				// Approve token spending (ERC-20)
-				const tokenAddress = selectedToken.toLowerCase() === 'usdc'
-					? '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' // USDC on Base
-					: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2'; // USDT on Base
-
-				const approveData = `0x095ea7b3${recipientAddress.slice(2).padStart(64, '0')}${'ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'}`;
-
-				await window.ethereum.request({
-					method: 'eth_sendTransaction',
-					params: [{
-						from: walletAddress,
-						to: tokenAddress,
-						data: approveData,
-					}],
-				});
-			}
-
-			setTxState('approved');
-			await new Promise(resolve => setTimeout(resolve, 500));
-
-			setTxState('sending');
-
-			// Send transaction
-			if (selectedToken.toLowerCase() === 'usdc' || selectedToken.toLowerCase() === 'usdt') {
-				// ERC-20 transfer
-				const tokenAddress = selectedToken.toLowerCase() === 'usdc'
-					? '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
-					: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2';
-
-				const amount = '1000000'; // 1 USDC/USDT (6 decimals)
-				const transferData = `0xa9059cbb${recipientAddress.slice(2).padStart(64, '0')}${amount.padStart(64, '0')}`;
-
-				const txHash = await window.ethereum.request({
-					method: 'eth_sendTransaction',
-					params: [{
-						from: walletAddress,
-						to: tokenAddress,
-						data: transferData,
-					}],
-				});
-
-				console.log('Transaction hash:', txHash);
-			} else {
+			// Handle blockchain transfers using wagmi
+			if (selectedToken.toLowerCase() === 'eth') {
 				// ETH transfer
-				const txHash = await window.ethereum.request({
-					method: 'eth_sendTransaction',
-					params: [{
-						from: walletAddress,
-						to: recipientAddress,
-						value: '0x16345785d8a0000', // 0.1 ETH
-					}],
+				sendTransaction({
+					to: recipientAddress as `0x${string}`,
+					value: parseEther('0.1'), // 0.1 ETH - replace with actual amount from form
 				});
-
-				console.log('Transaction hash:', txHash);
+			} else {
+				// For now, show that token transfers need contract interaction
+				alert('Token transfers will be implemented with useWriteContract');
 			}
-
-			setTxState('sent');
-			setTimeout(() => setTxState('idle'), 3000);
 		} catch (error: any) {
 			console.error('Transaction failed:', error);
-			setTxState('idle');
+		}
+	};
 
-			if (error.code === 4001) {
-				// User rejected transaction
-				console.log('Transaction was rejected by user');
-			} else {
-				alert('Transaction failed: ' + error.message);
-			}
+	// Connect wallet function
+	const connectWallet = () => {
+		const connector = connectors.find(c => c.type === 'injected') || connectors[0];
+		if (connector) {
+			connect({ connector });
 		}
 	};
 
@@ -501,7 +341,17 @@ export default function HeroUI() {
 	};
 
 	const isFormValid = !errors.recipient && !errors.claimingKey && recipientAddress.trim() && claimingKey.trim() && selectedToNetwork;
-	const isOnCorrectChain = !selectedToNetwork || selectedToNetwork.toLowerCase() !== 'base' || chainId === BASE_CHAIN_ID;
+	const isOnCorrectChain = !selectedToNetwork || selectedToNetwork.toLowerCase() !== 'base' || chain?.id === BASE_CHAIN_ID;
+
+	// Determine transaction state for UI
+	const getTransactionState = () => {
+		if (isSending) return 'sending';
+		if (isConfirming) return 'confirming';
+		if (isConfirmed) return 'sent';
+		return 'idle';
+	};
+
+	const txState = getTransactionState();
 
 	return (
 		<div className="text-white acrylic flex items-center justify-center p-4 sm:p-6">
@@ -755,7 +605,7 @@ export default function HeroUI() {
 								</div>
 							)}
 							<div className="mt-1 text-xs text-gray-400">
-								Share this 256-bit hexadecimal code with the recipient to claim the funds. This key provides cryptographic-grade security with 2^256 possible combinations.
+								Share this code with the recipient to claim the funds.
 							</div>
 						</div>
 					</div>
@@ -810,24 +660,24 @@ export default function HeroUI() {
 					<button
 						className="w-full py-4 px-6 rounded-xl font-semibold text-white text-lg transition-all hover:scale-[1.02] hover:shadow-lg flex items-center justify-center space-x-3 disabled:opacity-50 disabled:cursor-not-allowed"
 						style={{
-							background: isWalletConnected && isFormValid
+							background: isConnected && isFormValid
 								? `linear-gradient(135deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)`
 								: `linear-gradient(135deg, rgb(253, 196, 0) 0%, rgb(255, 213, 0) 100%)`,
-							color: isWalletConnected && isFormValid ? 'white' : 'rgb(0, 41, 107)'
+							color: isConnected && isFormValid ? 'white' : 'rgb(0, 41, 107)'
 						}}
-						onClick={isWalletConnected ? handleApproveAndSend : connectWallet}
+						onClick={isConnected ? handleApproveAndSend : () => connect({ connector: connectors[0] })}
 						disabled={txState !== 'idle'}
 					>
-						{txState === 'approving' && (
-							<>
-								<div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-								<span>Connecting...</span>
-							</>
-						)}
 						{txState === 'sending' && (
 							<>
 								<div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
 								<span>Sending...</span>
+							</>
+						)}
+						{txState === 'confirming' && (
+							<>
+								<div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+								<span>Confirming...</span>
 							</>
 						)}
 						{txState === 'sent' && (
@@ -836,7 +686,7 @@ export default function HeroUI() {
 								<span>Sent!</span>
 							</>
 						)}
-						{txState === 'idle' && !isWalletConnected && (
+						{txState === 'idle' && !isConnected && (
 							<>
 								<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -844,7 +694,7 @@ export default function HeroUI() {
 								<span>Connect wallet</span>
 							</>
 						)}
-						{txState === 'idle' && isWalletConnected && (
+						{txState === 'idle' && isConnected && (
 							<>
 								<Send className="w-6 h-6" />
 								<span>{isFormValid ? 'Send Transfer' : 'Enter Details'}</span>
@@ -853,14 +703,15 @@ export default function HeroUI() {
 					</button>
 
 					{/* Wallet Status */}
-					{isWalletConnected && (
+					{isConnected && (
 						<div className="mt-3 text-center">
 							<div className="text-sm text-gray-400">
-								Connected: {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+								Connected: {address?.slice(0, 6)}...{address?.slice(-4)}
 							</div>
 							{!isOnCorrectChain && (
-								<div className="mt-1 text-sm text-yellow-400">
-									⚠️ Please switch to Base network
+								<div className="mt-1 text-sm text-yellow-400 flex items-center justify-center space-x-1">
+									<AlertTriangle className="w-4 h-4" />
+									<span>Please switch to Base network</span>
 								</div>
 							)}
 						</div>
