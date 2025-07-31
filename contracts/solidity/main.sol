@@ -61,7 +61,6 @@ contract Endpoint is ReentrancyGuard {
         uint256 amount;
         address sender;
         uint256 hash;
-        uint256 claimingKey; // 248-bit claiming key for private transfers
     }
 
     // Message structure for cross-chain communication
@@ -69,7 +68,6 @@ contract Endpoint is ReentrancyGuard {
         address token;
         uint256 amount;
         address recipient;
-        uint256 claimingKey; // 248-bit claiming key for verification
     }
 
     /**
@@ -77,26 +75,14 @@ contract Endpoint is ReentrancyGuard {
      * @param _token Address of the token contract
      * @param _amount Amount of tokens to bridge
      * @param _hashMessage Hash message to include
-     * @return claimingKey Generated 248-bit claiming key for this transfer
      */
     function private_tx(
         address _token,
         uint256 _amount,
         uint256 _hashMessage
-    ) external payable returns (uint256 claimingKey) {
+    ) external payable {
         require(_token != address(0), "Invalid token address");
         require(_amount > 0, "Amount must be greater than 0");
-        
-        // Generate a 248-bit random claiming key
-        // Using block properties for randomness (note: not cryptographically secure for production)
-        claimingKey = uint256(keccak256(abi.encodePacked(
-            block.timestamp,
-            block.difficulty,
-            msg.sender,
-            _amount,
-            _hashMessage,
-            address(this)
-        ))) >> 8; // Right shift by 8 bits to get 248 bits
         
         // Transfer tokens from sender to this contract
         IERC20 token = IERC20(_token);
@@ -109,8 +95,7 @@ contract Endpoint is ReentrancyGuard {
             token: _token,
             amount: _amount,
             sender: msg.sender,
-            hash: _hashMessage,
-            claimingKey: claimingKey
+            hash: _hashMessage
         });
 
         bytes memory messageBody = abi.encode(message);
@@ -137,8 +122,6 @@ contract Endpoint is ReentrancyGuard {
         if (msg.value > fee) {
             payable(msg.sender).transfer(msg.value - fee);
         }
-        
-        return claimingKey;
     }
     
     /**
@@ -164,7 +147,6 @@ contract Endpoint is ReentrancyGuard {
         // Only process withdraw messages
         require(wMessage.recipient != address(0), "Invalid recipient");
         require(wMessage.amount > 0, "Invalid amount");
-        require(wMessage.claimingKey > 0, "Invalid claiming key");
         
         // Transfer tokens to recipient
         IERC20 token = IERC20(wMessage.token);
@@ -191,19 +173,11 @@ contract Endpoint is ReentrancyGuard {
         uint256 _amount,
         uint256 _hashMessage
     ) external view returns (uint256 fee) {
-        // Generate a sample claiming key for quote calculation
-        uint256 sampleClaimingKey = uint256(keccak256(abi.encodePacked(
-            block.timestamp,
-            msg.sender,
-            _amount
-        ))) >> 8;
-        
         Deposit memory message = Deposit({
             token: _token,
             sender: msg.sender,
             amount: _amount,
-            hash: _hashMessage,
-            claimingKey: sampleClaimingKey
+            hash: _hashMessage
         });
         
         bytes memory messageBody = abi.encode(message);
