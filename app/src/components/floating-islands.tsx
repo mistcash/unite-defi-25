@@ -41,7 +41,7 @@ const FloatingIslands = () => {
 
 		// Camera position
 		camera.position.set(0, 10, 20);
-		camera.lookAt(0, 5, 0);
+		camera.lookAt(0, 2, 0);
 
 		// Island creation function
 		function createIsland(island: IslandData) {
@@ -215,7 +215,7 @@ const FloatingIslands = () => {
 			{/* Scene container */}
 			<div
 				ref={containerRef}
-				className="fixed top-0 left-0 w-full h-full -z-10"
+				className="absolute top-0 left-0 w-full h-full -z-10"
 				style={{
 					background: 'linear-gradient(to bottom, #022152, #020202)' // Navy deep to black
 				}}
