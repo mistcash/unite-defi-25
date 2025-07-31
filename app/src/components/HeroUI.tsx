@@ -86,7 +86,7 @@ export default function HeroUI() {
 	const isFormValid = !errors.recipient && recipientAddress.trim();
 
 	return (
-		<div className="text-white flex items-center justify-center p-4 sm:p-6">
+		<div className="text-white acrylic flex items-center justify-center p-4 sm:p-6">
 			<div className="w-full max-w-2xl px-2 sm:px-0">
 				{/* Main Transfer Interface */}
 				<div className="">
