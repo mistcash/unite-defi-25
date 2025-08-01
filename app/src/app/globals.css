@@ -19,6 +19,14 @@ html {
   }
 }
 
+.black-shadow {
+  --shadow-spread: 11px;
+  --shadow-offset: 3px;
+  text-shadow:
+    var(--shadow-offset) var(--shadow-offset) var(--shadow-spread) #02122d, var(--shadow-offset) calc(-1 * var(--shadow-offset)) var(--shadow-spread) #02122d,
+    calc(-1 * var(--shadow-offset)) var(--shadow-offset) var(--shadow-spread) #02122d, calc(-1 * var(--shadow-offset)) calc(-1 * var(--shadow-offset)) var(--shadow-spread) #02122d;
+}
+
 .animate-extend-line {
   animation: extendLine 0.5s ease-in-out infinite alternate;
 }

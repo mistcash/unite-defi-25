@@ -7,9 +7,9 @@ export default function Home() {
   return (
     <div className="font-sans min-h-screen scroll-smooth">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center bg-black/20" style={{ '--tw-text-shadow-color': 'rgba(0, 0, 0, 0.9)' }}>
+      <section className="relative min-h-screen flex items-center justify-center bg-black/20 ">
         <FloatingIslands>
-          <div className="text-center max-w-6xl mx-auto px-8 pt-30">
+          <div className="text-center max-w-6xl mx-auto px-8 pt-30 black-shadow">
             <div className="my-20">
               <Image
                 className="mx-auto my-2"
@@ -22,7 +22,7 @@ export default function Home() {
               />
               MIST.cash | FOCBB
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight text-shadow-lg">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
               Send money to anyone<br />
               <span className="text-blue-400">anywhere privately</span><br />
               <span className="text-yellow-400">with compliance</span>
@@ -113,7 +113,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-white mb-4">Claim Funds</h3>
               <p className="text-gray-300">
-                Upon successful proof verification, funds are automatically released to the recipient's wallet.
+                Upon successful proof verification, funds are automatically released to the recipient&#39;s wallet.
               </p>
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function Home() {
             Ready to Build the Future of Private Finance?
           </h2>
           <p className="text-xl text-gray-300 mb-12">
-            Join the revolution in privacy-preserving payments. Whether you're a fintech startup,
+            Join the revolution in privacy-preserving payments. Whether you&#39;re a fintech startup,
             enterprise, or financial institution, FOCBB provides the tools you need.
           </p>
           <div className="flex flex-col md:flex-row gap-6 justify-center">
