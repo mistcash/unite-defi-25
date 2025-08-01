@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+/* Smooth scrolling for all elements */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Arrow line extension animation */
+@keyframes extendLine {
+
+  0% {
+    stroke-dasharray: 14 20;
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dasharray: 16 10;
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-extend-line {
+  animation: extendLine 0.5s ease-in-out infinite alternate;
+}
+
 :root {
   /* Core Color Palette */
   --navy-deep: #00296b;
@@ -43,7 +66,7 @@ body {
 /* Acrylic glass effect with enhanced styling */
 .acrylic {
   border-radius: 5px;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.1);
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   border: 1px solid rgba(255, 255, 255, 0.1);

@@ -5,69 +5,92 @@ import TransferUI from "../components/TransferUI";
 
 export default function Home() {
   return (
-    <div className="font-sans min-h-screen">
+    <div className="font-sans min-h-screen scroll-smooth">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center">
+      <section className="relative min-h-screen flex items-center justify-center bg-black/20" style={{ '--tw-text-shadow-color': 'rgba(0, 0, 0, 0.9)' }}>
         <FloatingIslands>
-          <div className="text-center max-w-6xl mx-auto px-8">
-            <Image
-              className="mx-auto mb-8"
-              src="/mist-logo.svg"
-              alt="Mist logo"
-              width={240}
-              height={48}
-              priority
-              style={{ filter: 'brightness(0) invert(1)' }}
-            />
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+          <div className="text-center max-w-6xl mx-auto px-8 pt-30">
+            <div className="my-20">
+              <Image
+                className="mx-auto my-2"
+                src="/mist-logo.svg"
+                alt="Mist logo"
+                width={50}
+                height={50}
+                priority
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+              MIST.cash | FOCBB
+            </div>
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight text-shadow-lg">
               Send money to anyone<br />
-              <span style={{ color: 'var(--gold)' }}>anywhere privately</span><br />
-              <span style={{ color: 'var(--gold-lighter)' }}>with compliance</span>
+              <span className="text-blue-400">anywhere privately</span><br />
+              <span className="text-yellow-400">with compliance</span>
             </h1>
-            <div className="flex flex-col md:flex-row gap-4 justify-center items-center mb-12">
-              <a href="#demo"
-                className="text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors hover:opacity-90"
-                style={{ backgroundColor: 'var(--navy-bright)' }}
-              >
-                Try Chamber Demo Below
+
+            {/* Cool arrow CTA */}
+            <div className="flex flex-col items-center my-20">
+              <a href="#demo" className="group flex flex-col items-center transition-transform duration-300">
+                <span className="text-white text-lg font-medium tracking-wide opacity-90 transition-opacity duration-500 animate-bounce">
+                  Make a private transaction
+                </span>
+                <div className="relative">
+                  <div className="w-24 h-14 flex items-center justify-center transition-colors duration-300">
+                    <svg
+                      className="mt-4 w-16 h-16 text-white duration-500 animate-bounce"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      {/* Arrowhead (static) */}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M19 14l-7 7m0 0l-7-7"
+                      />
+                      {/* Extending line */}
+                      <path
+                        className="animate-extend-line"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1}
+                        d="M12 20V0"
+                      />
+                    </svg>
+                  </div>
+                </div>
               </a>
-              <Link href="https://www.youtube.com/shorts/YfbM7zEPLno" target="_blank"
-                className="border text-white hover:opacity-90 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 bg-black/50 hover:bg-opacity-100"
-                style={{
-                  borderColor: 'var(--gold)',
-                }}
-              >
-                Watch Old Demo Video
-              </Link>
+
             </div>
           </div>
+          {/* Demo Section */}
+          <section id="demo" className="acrylic py-20 px-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
+                Send money to a Gmail address from Base
+              </h2>
+              <p className="text-lg text-gray-300 text-center mb-12 max-w-2xl mx-auto">
+                Privately transaction to a gmail address from Base.<br />Claims are fulfilled on your network of choice with 1Inch Fusion+.
+              </p>
+              <div className="flex justify-center">
+                <TransferUI />
+              </div>
+            </div>
+          </section>
+
         </FloatingIslands>
       </section>
 
-      {/* Demo Section */}
-      <section id="demo" className="py-20 px-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
-            Try MIST Chamber Demo
-          </h2>
-          <p className="text-lg text-gray-300 text-center mb-12 max-w-2xl mx-auto">
-            Send money privately to any gmail address or Base/Starknet.<br />Claims are fulfilled on your network of choice with 1Inch Fusion+.
-          </p>
-          <div className="flex justify-center">
-            <TransferUI />
-          </div>
-        </div>
-      </section>
-
       {/* How It Works Section */}
-      <section className="py-20 px-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+      <section className="py-20 px-8 bg-gray-900 bg-opacity-80">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-16">
             How Private Payments Work
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-8 rounded-xl" style={{ backgroundColor: 'rgba(0, 41, 107, 0.6)' }}>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'var(--navy-bright)' }}>
+            <div className="text-center p-8 bg-gray-800 bg-opacity-60 rounded-xl">
+              <div className="w-16 h-16 bg-blue-700 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">1</span>
               </div>
               <h3 className="text-xl font-semibold text-white mb-4">Sender Creates Payment</h3>
@@ -75,18 +98,18 @@ export default function Home() {
                 Sender generates a payment with a cryptographic secret, ensuring only the intended recipient can claim it.
               </p>
             </div>
-            <div className="text-center p-8 rounded-xl" style={{ backgroundColor: 'rgba(0, 41, 107, 0.6)' }}>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'var(--gold)' }}>
-                <span className="text-2xl font-bold" style={{ color: 'var(--navy-deep)' }}>2</span>
+            <div className="text-center p-8 bg-gray-800 bg-opacity-60 rounded-xl">
+              <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl font-bold text-gray-900">2</span>
               </div>
               <h3 className="text-xl font-semibold text-white mb-4">Zero-Knowledge Proof</h3>
               <p className="text-gray-300">
                 Recipient proves knowledge of the secret using zero-knowledge proofs without revealing the secret itself.
               </p>
             </div>
-            <div className="text-center p-8 rounded-xl" style={{ backgroundColor: 'rgba(0, 41, 107, 0.6)' }}>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6" style={{ backgroundColor: 'var(--gold-bright)' }}>
-                <span className="text-2xl font-bold" style={{ color: 'var(--navy-deep)' }}>3</span>
+            <div className="text-center p-8 bg-gray-800 bg-opacity-60 rounded-xl">
+              <div className="w-16 h-16 bg-green-700 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span className="text-2xl font-bold text-white">3</span>
               </div>
               <h3 className="text-xl font-semibold text-white mb-4">Claim Funds</h3>
               <p className="text-gray-300">
@@ -151,7 +174,7 @@ export default function Home() {
       </section>
 
       {/* FOCBB Partnership Section */}
-      <section className="py-20 px-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+      <section className="py-20 px-8 bg-gray-900 bg-opacity-80">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-8">
             FOCBB: Fully On-Chain Better Banks
@@ -162,37 +185,45 @@ export default function Home() {
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            <div className="text-center p-6 rounded-xl" style={{ backgroundColor: 'rgba(0, 41, 107, 0.4)' }}>
-              <h3 className="text-xl font-semibold text-white mb-4">Privacy</h3>
+            <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Privacy <span className="text-blue-400">●</span>
+              </h3>
               <p className="text-gray-300">
                 Confidentiality & anonymity with homomorphic encryption
               </p>
             </div>
-            <div className="text-center p-6 rounded-xl" style={{ backgroundColor: 'rgba(0, 41, 107, 0.4)' }}>
-              <h3 className="text-xl font-semibold text-white mb-4">Compliance</h3>
+            <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Compliance <span className="text-yellow-400">●</span>
+              </h3>
               <p className="text-gray-300">
                 Configurable rules for any jurisdiction or regulatory requirement
               </p>
             </div>
-            <div className="text-center p-6 rounded-xl" style={{ backgroundColor: 'rgba(0, 41, 107, 0.4)' }}>
-              <h3 className="text-xl font-semibold text-white mb-4">Self-Custody</h3>
+            <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Self-Custody <span className="text-blue-400">●</span>
+              </h3>
               <p className="text-gray-300">
                 Users maintain full control of their assets and encryption keys
               </p>
             </div>
-            <div className="text-center p-6 rounded-xl" style={{ backgroundColor: 'rgba(0, 41, 107, 0.4)' }}>
-              <h3 className="text-xl font-semibold text-white mb-4">Interchain</h3>
+            <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">
+              <h3 className="text-xl font-semibold text-white mb-4">
+                Interchain <span className="text-yellow-400">●</span>
+              </h3>
               <p className="text-gray-300">
                 Seamless asset movement across multiple blockchain networks
               </p>
             </div>
           </div>
 
-          <div className="p-8 rounded-2xl" style={{ background: `linear-gradient(90deg, var(--navy-medium), var(--navy-deep))` }}>
+          <div className="p-8 bg-gray-800 bg-opacity-60 rounded-2xl border border-gray-700">
             <h3 className="text-2xl font-bold text-white mb-6">Compliance Features for Enterprises</h3>
             <div className="grid md:grid-cols-3 gap-6">
               <div>
-                <h4 className="text-lg font-semibold mb-3" style={{ color: 'var(--gold-bright)' }}>Transaction Controls</h4>
+                <h4 className="text-lg font-semibold text-blue-400 mb-3">Transaction Controls</h4>
                 <ul className="text-gray-300 space-y-2 text-sm">
                   <li>• Sanctioned address screening</li>
                   <li>• Configurable delay periods</li>
@@ -200,7 +231,7 @@ export default function Home() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-lg font-semibold mb-3" style={{ color: 'var(--gold)' }}>Access Management</h4>
+                <h4 className="text-lg font-semibold text-yellow-400 mb-3">Access Management</h4>
                 <ul className="text-gray-300 space-y-2 text-sm">
                   <li>• Whitelisted KYC entities</li>
                   <li>• Compliance key verification</li>
@@ -208,7 +239,7 @@ export default function Home() {
                 </ul>
               </div>
               <div>
-                <h4 className="text-lg font-semibold mb-3" style={{ color: 'var(--gold-lighter)' }}>Threshold Enforcement</h4>
+                <h4 className="text-lg font-semibold text-green-400 mb-3">Threshold Enforcement</h4>
                 <ul className="text-gray-300 space-y-2 text-sm">
                   <li>• Automated delays for high-value</li>
                   <li>• Escalating restrictions</li>
@@ -221,7 +252,7 @@ export default function Home() {
       </section>
 
       {/* Call to Action Section */}
-      <section className="py-20 px-8">
+      <section className="py-20 px-8 bg-gray-800 bg-opacity-30">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
             Ready to Build the Future of Private Finance?
@@ -231,21 +262,14 @@ export default function Home() {
             enterprise, or financial institution, FOCBB provides the tools you need.
           </p>
           <div className="flex flex-col md:flex-row gap-6 justify-center">
-            <button
-              className="text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors hover:opacity-90"
-              style={{ backgroundColor: 'var(--navy-bright)' }}
-            >
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
               Start Building
             </button>
-            <button
-              className="border text-white hover:opacity-90 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
-              style={{ borderColor: 'var(--gold)' }}
-            >
+            <button className="border border-gray-400 text-white hover:bg-gray-700 px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
               Partnership Inquiry
             </button>
             <Link href="https://shhtarknet.github.io/mist/" target="_blank"
-              className="text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors hover:opacity-90"
-              style={{ backgroundColor: 'var(--gold)', color: 'var(--navy-deep)' }}
+              className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
             >
               Try Old Live Demo
             </Link>
@@ -254,7 +278,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-8 border-t" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', borderColor: 'var(--navy-medium)' }}>
+      <footer className="py-12 px-8 bg-gray-900 bg-opacity-90 border-t border-gray-700">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">
@@ -279,7 +303,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <div className="mt-8 pt-8 border-t text-center text-gray-400" style={{ borderColor: 'var(--navy-medium)' }}>
+          <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
             <p>&copy; 2025 MIST Cash. Building the future of private, compliant finance.</p>
           </div>
         </div>

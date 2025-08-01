@@ -57,20 +57,20 @@ export default function FloatingCones({ children }: { children: React.ReactNode 
 			// Create material
 			const material = new THREE.LineBasicMaterial({
 				depthTest: false,
-				opacity: 0.5, // Reduced opacity since we're layering multiple lines
+				opacity: 1, // Reduced opacity since we're layering multiple lines
 				transparent: true,
 				color: networkColors[network] || 0x6b7280,
 			});
 
-			const thickness = island.thickness || 0.03; // Default thickness if not specified
+			const thickness = island.thickness || 0.01; // Default thickness if not specified
 			// Create multiple slightly offset line segments to simulate thickness
 			const offsets = [
 				{ x: 0, y: 0, z: 0 },
 				{ x: thickness, y: 0, z: 0 },
 				// { x: -thickness, y: 0, z: 0 },
-				{ x: 0, y: thickness, z: 0 },
+				// { x: 0, y: thickness, z: 0 },
 				// { x: 0, y: -thickness, z: 0 },
-				{ x: 0, y: 0, z: thickness },
+				// { x: 0, y: 0, z: thickness },
 				// { x: 0, y: 0, z: -thickness },
 			];
 

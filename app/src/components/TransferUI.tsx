@@ -326,7 +326,7 @@ export default function TransferUI() {
 	const txState = getTransactionState();
 
 	return (
-		<div className="text-white acrylic flex items-center justify-center p-4 sm:p-6">
+		<div className="text-white flex items-center justify-center p-4 sm:p-6">
 			<div className="w-full max-w-2xl px-2 sm:px-0">
 				{/* Transfer Interface */}
 				<div className="max-w-md mx-auto">
