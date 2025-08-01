@@ -1,16 +1,27 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: process.env.NODE_ENV === 'production' ? 'export' : undefined,
-  trailingSlash: true,
-  images: {
-    unoptimized: true,
-  },
-  // Add experimental flag that might help with file system issues
-  experimental: {
-    // Disable some optimizations that might cause file conflicts
-    optimizePackageImports: [],
-  },
+  // Only use export mode in production builds
+  ...(process.env.NODE_ENV === 'production' && {
+    output: 'export',
+    trailingSlash: true,
+  }),
+
+  // Development-specific optimizations
+  ...(process.env.NODE_ENV === 'development' && {
+    // Disable problematic features in dev
+    experimental: {
+      optimizePackageImports: [],
+    },
+    // Ensure proper dev server behavior
+    eslint: {
+      ignoreDuringBuilds: false,
+    },
+  }),
+
+  // Universal settings
+  reactStrictMode: true,
+  swcMinify: true,
 };
 
 export default nextConfig;

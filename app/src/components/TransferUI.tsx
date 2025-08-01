@@ -414,164 +414,76 @@ export default function TransferUI() {
 			</div>
 
 
-			{/* To Section */}
-			<div className="mb-3">
-				<label className="block text-sm font-medium mb-3" style={{ color: 'rgb(240, 245, 255)' }}>
-					To
+			{/* Recipient Address */}
+			<div className="mt-4">
+				<label className="block text-sm font-medium mb-2" style={{ color: 'rgb(240, 245, 255)' }}>
+					{getFieldLabel()}
 				</label>
-				<div className="grid grid-cols-2 gap-3 clear-both">
-					{/* To Network Selector */}
-					<div className="relative">
-						<div
-							className="flex items-center space-x-3 p-3 rounded-lg border cursor-pointer hover:border-opacity-60 transition-all"
-							style={{
-								backgroundColor: 'rgba(63, 63, 63, 0.4)',
-								borderColor: 'rgb(80, 80, 80)'
-							}}
-							onClick={(e) => {
-								e.stopPropagation();
-								setShowToNetworkPopup(!showToNetworkPopup);
-								setShowFromNetworkPopup(false);
-								setShowFromTokenPopup(false);
-								setShowToTokenPopup(false);
-							}}
-						>
-							{(() => {
-								const network = getNetworkById(selectedToNetwork);
-								return (
-									<>
-										<div
-											className="w-8 h-8 hidden rounded-full md:flex items-center justify-center text-sm font-bold"
-											style={{ backgroundColor: network?.color, color: network?.textColor }}
-										>
-											{renderIcon(network?.icon || 'Globe', "w-4 h-4")}
-										</div>
-										<span className="text-white font-medium">{network?.name}</span>
-										<ChevronDown className="w-4 h-4 ml-auto text-gray-400" />
-									</>
-								);
-							})()}
-						</div>
-						<SelectionPopup
-							items={networks.filter(n => ['base', 'gmail'].indexOf(n.id) > -1)}
-							onSelect={handleToNetworkSelect}
-							show={showToNetworkPopup}
-							position="top"
-						/>
+				<div
+					className="flex items-center space-x-3 p-3 rounded-lg border"
+					style={{
+						backgroundColor: 'rgba(63, 63, 63, 0.4)',
+						borderColor: errors.recipient ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'
+					}}
+				>
+					<div className="hidden w-8 h-8 rounded-full md:flex items-center justify-center" style={{ backgroundColor: 'rgb(255, 87, 34)' }}>
+						<User className="w-4 h-4 text-white" />
 					</div>
-
-					{/* To Token Selector */}
-					<div className="relative">
-						<div
-							className="flex items-center space-x-3 p-3 rounded-lg border cursor-pointer hover:border-opacity-60 transition-all"
-							style={{
-								backgroundColor: 'rgba(63, 63, 63, 0.4)',
-								borderColor: 'rgb(80, 80, 80)'
-							}}
-							onClick={(e) => {
-								e.stopPropagation();
-								setShowToTokenPopup(!showToTokenPopup);
-								setShowFromNetworkPopup(false);
-								setShowFromTokenPopup(false);
-								setShowToNetworkPopup(false);
-							}}
-						>
-							{(() => {
-								const token = getTokenById(selectedToken);
-								return (
-									<>
-										<div
-											className="w-8 h-8 hidden rounded-full md:flex items-center justify-center text-sm font-bold"
-											style={{ backgroundColor: token?.color, color: token?.textColor }}
-										>
-											{renderIcon(token?.icon || 'DollarSign', "w-4 h-4")}
-										</div>
-										<span className="text-white font-medium">{token?.name}</span>
-										<ChevronDown className="w-4 h-4 ml-auto text-gray-400" />
-									</>
-								);
-							})()}
-						</div>
-						<SelectionPopup
-							items={tokens}
-							onSelect={handleFromTokenSelect}
-							show={showToTokenPopup}
-							position="top"
-						/>
-					</div>
+					<input
+						type="text"
+						value={recipientAddress}
+						onChange={(e) => handleRecipientChange(e.target.value)}
+						placeholder={selectedToNetwork.toLowerCase() === 'gmail' ? 'user@gmail.com' : '0xCe8...d129'}
+						className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none"
+					/>
 				</div>
-
-				{/* Recipient Address */}
-				<div className="mt-4">
-					<label className="block text-sm font-medium mb-2" style={{ color: 'rgb(240, 245, 255)' }}>
-						{getFieldLabel()}
-					</label>
-					<div
-						className="flex items-center space-x-3 p-3 rounded-lg border"
-						style={{
-							backgroundColor: 'rgba(63, 63, 63, 0.4)',
-							borderColor: errors.recipient ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'
-						}}
-					>
-						<div className="hidden w-8 h-8 rounded-full md:flex items-center justify-center" style={{ backgroundColor: 'rgb(255, 87, 34)' }}>
-							<User className="w-4 h-4 text-white" />
-						</div>
-						<input
-							type="text"
-							value={recipientAddress}
-							onChange={(e) => handleRecipientChange(e.target.value)}
-							placeholder={selectedToNetwork.toLowerCase() === 'gmail' ? 'user@gmail.com' : '0xCe8...d129'}
-							className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none"
-						/>
+				{errors.recipient && (
+					<div className="mt-1 flex items-center gap-1 text-red-400 text-sm">
+						<AlertCircle className="w-4 h-4" />
+						{errors.recipient}
 					</div>
-					{errors.recipient && (
-						<div className="mt-1 flex items-center gap-1 text-red-400 text-sm">
-							<AlertCircle className="w-4 h-4" />
-							{errors.recipient}
-						</div>
-					)}
+				)}
+			</div>
+
+			{/* Claiming Key */}
+			<div className="mt-4">
+				<label className="block text-sm font-medium mb-2" style={{ color: 'rgb(240, 245, 255)' }}>
+					Claiming Key
+					<span className="text-xs text-gray-400 ml-2">(256-bit hex secret)</span>
+				</label>
+				<div
+					className="flex items-center space-x-3 p-3 rounded-lg border"
+					style={{
+						backgroundColor: 'rgba(63, 63, 63, 0.4)',
+						borderColor: errors.claimingKey ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'
+					}}
+				>
+					<div className="hidden w-8 h-8 rounded-full md:flex items-center justify-center" style={{ backgroundColor: 'rgb(34, 197, 94)' }}>
+						<Key className="w-4 h-4 text-white" />
+					</div>
+					<input
+						type="text"
+						value={claimingKey}
+						readOnly
+						placeholder="Generating..."
+						className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none font-mono text-sm tracking-wide cursor-default select-all break-all"
+					/>
+					<button
+						type="button"
+						onClick={generateClaimingKey}
+						className="rounded cursor-pointer text-sm transition-all hover:opacity-80 shrink-0 text-white"
+					>
+						Regenerate
+					</button>
 				</div>
-
-				{/* Claiming Key */}
-				<div className="mt-4">
-					<label className="block text-sm font-medium mb-2" style={{ color: 'rgb(240, 245, 255)' }}>
-						Claiming Key
-						<span className="text-xs text-gray-400 ml-2">(256-bit hex secret)</span>
-					</label>
-					<div
-						className="flex items-center space-x-3 p-3 rounded-lg border"
-						style={{
-							backgroundColor: 'rgba(63, 63, 63, 0.4)',
-							borderColor: errors.claimingKey ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'
-						}}
-					>
-						<div className="hidden w-8 h-8 rounded-full md:flex items-center justify-center" style={{ backgroundColor: 'rgb(34, 197, 94)' }}>
-							<Key className="w-4 h-4 text-white" />
-						</div>
-						<input
-							type="text"
-							value={claimingKey}
-							readOnly
-							placeholder="Generating..."
-							className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none font-mono text-sm tracking-wide cursor-default select-all break-all"
-						/>
-						<button
-							type="button"
-							onClick={generateClaimingKey}
-							className="rounded cursor-pointer text-sm transition-all hover:opacity-80 shrink-0 text-white"
-						>
-							Regenerate
-						</button>
+				{errors.claimingKey && (
+					<div className="mt-1 flex items-center gap-1 text-red-400 text-sm">
+						<AlertCircle className="w-4 h-4" />
+						{errors.claimingKey}
 					</div>
-					{errors.claimingKey && (
-						<div className="mt-1 flex items-center gap-1 text-red-400 text-sm">
-							<AlertCircle className="w-4 h-4" />
-							{errors.claimingKey}
-						</div>
-					)}
-					<div className="mt-1 text-xs text-gray-400">
-						Share this code with the recipient to claim the funds.
-					</div>
+				)}
+				<div className="mt-1 text-xs text-gray-400">
+					Share this code with the recipient to claim the funds.
 				</div>
 			</div>
 
