@@ -1,20 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Wallet, Send, Check, AlertCircle, AlertTriangle, Key, User, Mail, Globe, DollarSign, Coins, Zap } from 'lucide-react';
-import { useAccount, useConnect, useDisconnect, useSendTransaction, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
+import { ChevronDown, Send, Check, AlertCircle, AlertTriangle, Key, User, Mail, Globe, DollarSign, Coins, Zap } from 'lucide-react';
+import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
 import { parseEther } from 'viem';
 import { base } from 'wagmi/chains';
 
 interface HeroUIError {
 	recipient?: string;
 	claimingKey?: string;
-}
-
-declare global {
-	interface Window {
-		ethereum?: any;
-	}
 }
 
 export default function HeroUI() {
@@ -28,8 +22,7 @@ export default function HeroUI() {
 	// Wagmi hooks
 	const { address, isConnected, chain } = useAccount();
 	const { connect, connectors } = useConnect();
-	const { disconnect } = useDisconnect();
-	const { data: hash, sendTransaction, isPending: isSending, error: sendError } = useSendTransaction();
+	const { data: hash, sendTransaction, isPending: isSending } = useSendTransaction();
 	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 	const { switchChain } = useSwitchChain();
 
@@ -160,12 +153,6 @@ export default function HeroUI() {
 		setShowToNetworkPopup(false);
 	};
 
-	const swapNetworks = () => {
-		const tempNetwork = selectedFromNetwork;
-		setSelectedFromNetwork(selectedToNetwork);
-		setSelectedToNetwork(tempNetwork);
-	};
-
 	// Selection Popup Component
 	const SelectionPopup = ({
 		items,
@@ -173,7 +160,7 @@ export default function HeroUI() {
 		show,
 		position = 'bottom'
 	}: {
-		items: any[],
+		items: Array<{ id: string; name: string; icon: string; color: string; textColor: string }>,
 		onSelect: (id: string) => void,
 		show: boolean,
 		position?: 'bottom' | 'top'
@@ -236,14 +223,6 @@ export default function HeroUI() {
 		setRecipientAddress(value);
 		const error = validateRecipient(value, selectedToNetwork.toLowerCase());
 		setErrors(prev => ({ ...prev, recipient: error }));
-	};
-
-	// Handle destination change
-	const handleDestinationChange = (destination: string) => {
-		setSelectedToNetwork(destination);
-		setRecipientAddress('');
-		setClaimingKey('');
-		setErrors(prev => ({ ...prev, recipient: undefined, claimingKey: undefined }));
 	};
 
 	// Generate cryptographically secure random claiming key
@@ -324,16 +303,8 @@ export default function HeroUI() {
 				// For now, show that token transfers need contract interaction
 				alert('Token transfers will be implemented with useWriteContract');
 			}
-		} catch (error: any) {
+		} catch (error: unknown) {
 			console.error('Transaction failed:', error);
-		}
-	};
-
-	// Connect wallet function
-	const connectWallet = () => {
-		const connector = connectors.find(c => c.type === 'injected') || connectors[0];
-		if (connector) {
-			connect({ connector });
 		}
 	};
 

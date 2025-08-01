@@ -95,7 +95,7 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 			return islandGroup;
 		}
 
-		const islands: any[] = [];
+		const islands: THREE.Group<THREE.Object3DEventMap>[] = [];
 
 		// Your brand colors + popular blockchain network colors
 		const networkColors: { [key: string]: string } = {
@@ -111,7 +111,7 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 			Starknet_: "#e57691",
 		};
 
-		const mistNetwork = { x: 0, y: -8, z: -5, size: 4, detail: 12, network: "MIST" };
+		// const mistNetwork = { x: 0, y: -8, z: -5, size: 4, detail: 12, network: "MIST" };
 
 		interface IslandData { x: number; y: number; z: number; size: number; detail: number; network: string; thickness?: number }
 
@@ -131,25 +131,6 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 			{ x: 12, y: -1, z: -15, size: 2.1, detail: 3, network: "Tron" },
 		];
 
-		// Create connection lines between MIST and other networks
-		function createConnectionLine(fromPos: THREE.Vector3, toPos: THREE.Vector3) {
-			const geometry = new THREE.BufferGeometry().setFromPoints([
-				new THREE.Vector3(fromPos.x, fromPos.y, fromPos.z),
-				new THREE.Vector3(toPos.x, toPos.y, toPos.z)
-			]);
-
-			const material = new THREE.LineBasicMaterial({
-				color: 0xfdc500, // Gold connections
-				opacity: 1,
-				transparent: true,
-				depthTest: false
-			});
-
-			return new THREE.Line(geometry, material);
-		}
-
-		// Create islands
-		const connectionLines: THREE.Line[] = [];
 		// Create other network islands and connect them to MIST
 		islandData.forEach((data) => {
 			const island = createIsland(data);
@@ -196,16 +177,14 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 
 			// Dispose of geometries and materials
 			islands.forEach(island => {
-				island.children.forEach((lineSegment: { geometry: { dispose: () => void; }; material: { dispose: () => void; }; }) => {
-					if (lineSegment.geometry) lineSegment.geometry.dispose();
-					if (lineSegment.material) lineSegment.material.dispose();
+				island.children.forEach((lineSegment: THREE.Object3D<THREE.Object3DEventMap>) => {
+					lineSegment.traverse((child) => {
+						if (child instanceof THREE.Line) {
+							if (child.geometry) child.geometry.dispose();
+							if (child.material) child.material.dispose();
+						}
+					});
 				});
-			});
-
-			// Dispose of connection lines
-			connectionLines.forEach(line => {
-				if (line.geometry) line.geometry.dispose();
-				if (line.material) line.material.dispose();
 			});
 
 			renderer.dispose();

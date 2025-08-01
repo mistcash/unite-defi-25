@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 
+const currencies = ['USDT', 'ETH', 'EUR', 'BTC'];
+const platforms = ['Base', 'Gmail', 'Facebook', 'Optimism'];
+
 export default function AnimatedHeroText() {
-	const currencies = ['USDT', 'ETH', 'EUR', 'BTC'];
-	const platforms = ['Base', 'Gmail', 'Facebook', 'Optimism'];
 
 	const [currentCurrency, setCurrentCurrency] = useState(0);
 	const [currentPlatform, setCurrentPlatform] = useState(0);
