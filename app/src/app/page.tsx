@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import FloatingIslands from "../components/FloatingCones";
 import TransferUI from "../components/TransferUI";
+import ClaimUI from "../components/ClaimUI.tsx";
 
 export default function Home() {
   return (
