@@ -6,18 +6,18 @@ import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceip
 import { parseEther } from 'viem';
 import { base } from 'wagmi/chains';
 
-interface HeroUIError {
+interface TransferUIError {
 	recipient?: string;
 	claimingKey?: string;
 }
 
-export default function HeroUI() {
+export default function TransferUI() {
 	const [selectedToken, setSelectedToken] = useState('usdc');
 	const [selectedFromNetwork, setSelectedFromNetwork] = useState('base');
 	const [selectedToNetwork, setSelectedToNetwork] = useState('gmail');
 	const [recipientAddress, setRecipientAddress] = useState('');
 	const [claimingKey, setClaimingKey] = useState('');
-	const [errors, setErrors] = useState<HeroUIError>({});
+	const [errors, setErrors] = useState<TransferUIError>({});
 
 	// Wagmi hooks
 	const { address, isConnected, chain } = useAccount();

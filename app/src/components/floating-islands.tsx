@@ -144,7 +144,7 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 			animationIdRef.current = requestAnimationFrame(animate);
 
 			// Animate islands (subtle floating effect)
-			islands.forEach((island, index) => {
+			islands.forEach((island) => {
 				island.position.y =
 					island.userData.baseY +
 					Math.sin(Date.now() * 0.001 * island.userData.floatSpeed) *
