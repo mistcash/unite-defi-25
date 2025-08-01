@@ -9,7 +9,7 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-black/20 ">
         <FloatingIslands>
-          <div className="text-center max-w-6xl mx-auto px-8 pt-30 black-shadow">
+          <div className="text-center max-w-6xl mx-auto px-4 md:px-8 md:pt-16 lg:pt-30 black-shadow text-xl md:text-2xl lg:text-3xl">
             <div className="my-20">
               <Image
                 className="mx-auto my-2"
@@ -22,7 +22,7 @@ export default function Home() {
               />
               MIST.cash | FOCBB
             </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
               Send money to anyone<br />
               <span className="text-blue-400">anywhere privately</span><br />
               <span className="text-yellow-400">with compliance</span>
@@ -65,17 +65,15 @@ export default function Home() {
             </div>
           </div>
           {/* Demo Section */}
-          <section id="demo" className="acrylic py-20 px-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
-            <div className="max-w-4xl mx-auto">
-              <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
-                Send money to a Gmail address from Base
-              </h2>
-              <p className="text-lg text-gray-300 text-center mb-12 max-w-2xl mx-auto">
-                Privately transaction to a gmail address from Base.<br />Claims are fulfilled on your network of choice with 1Inch Fusion+.
-              </p>
-              <div className="flex justify-center">
-                <TransferUI />
-              </div>
+          <section id="demo" className="max-w-4xl mx-auto acrylic py-20 px-4 md:px-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
+            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
+              Send money to a Gmail address from Base
+            </h2>
+            <p className="text-lg text-gray-300 text-center mb-12 max-w-2xl mx-auto">
+              Privately transaction to a gmail address from Base.<br />Claims are fulfilled on your network of choice with 1Inch Fusion+.
+            </p>
+            <div className="flex justify-center">
+              <TransferUI />
             </div>
           </section>
 
@@ -83,7 +81,7 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-8 bg-gray-900 bg-opacity-80">
+      <section className="py-20 px-4 md:px-8 bg-gray-900 bg-opacity-80">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-16">
             How Private Payments Work
@@ -121,7 +119,7 @@ export default function Home() {
       </section>
 
       {/* MIST Products Section */}
-      <section className="py-20 px-8">
+      <section className="py-20 px-4 md:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-16">
             MIST Privacy Solutions
@@ -174,7 +172,7 @@ export default function Home() {
       </section>
 
       {/* FOCBB Partnership Section */}
-      <section className="py-20 px-8 bg-gray-900 bg-opacity-80">
+      <section className="py-20 px-4 md:px-8 bg-gray-900 bg-opacity-80">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-8">
             FOCBB: Fully On-Chain Better Banks
@@ -252,7 +250,7 @@ export default function Home() {
       </section>
 
       {/* Call to Action Section */}
-      <section className="py-20 px-8 bg-gray-800 bg-opacity-30">
+      <section className="py-20 px-4 md:px-8 bg-gray-800 bg-opacity-30">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
             Ready to Build the Future of Private Finance?
@@ -262,14 +260,14 @@ export default function Home() {
             enterprise, or financial institution, FOCBB provides the tools you need.
           </p>
           <div className="flex flex-col md:flex-row gap-6 justify-center">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
+            <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
               Start Building
             </button>
-            <button className="border border-gray-400 text-white hover:bg-gray-700 px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
+            <button className="border border-gray-400 text-white hover:bg-gray-700 px-4 md:px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
               Partnership Inquiry
             </button>
             <Link href="https://shhtarknet.github.io/mist/" target="_blank"
-              className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+              className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 md:px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
             >
               Try Old Live Demo
             </Link>
@@ -278,7 +276,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-8 bg-gray-900 bg-opacity-90 border-t border-gray-700">
+      <footer className="py-12 px-4 md:px-8 bg-gray-900 bg-opacity-90 border-t border-gray-700">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="mb-6 md:mb-0">

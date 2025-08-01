@@ -203,7 +203,7 @@ export default function FloatingCones({ children }: { children: React.ReactNode 
 			/>
 
 			{/* Hero content overlay */}
-			<div className="m-auto text-white">
+			<div className="m-auto w-full text-white">
 				{children}
 			</div>
 		</div>
