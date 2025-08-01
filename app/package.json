@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
+    "dev:turbo": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "next build && echo 'mist.cash' > out/CNAME && npx gh-pages -d out -r https://github.com/mistcash/landing.git"
+    "deploy": "next build && npx gh-pages --nojekyll --dotfiles -d out -r https://github.com/mistcash/landing.git"
   },
   "dependencies": {
     "@reown/appkit": "^1.7.17",

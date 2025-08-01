@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
-const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
+export default function FloatingCones({ children }: { children: React.ReactNode }) {
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const sceneRef = useRef<THREE.Scene | null>(null);
 	const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -209,5 +209,3 @@ const FloatingIslands = ({ children }: { children: React.ReactNode }) => {
 		</div>
 	);
 };
-
-export default FloatingIslands;
