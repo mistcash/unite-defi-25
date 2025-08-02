@@ -1,12 +1,19 @@
 pragma circom 2.0.0;
 
 include "circomlib/circuits/poseidon.circom";
+include "circomlib/circuits/comparators.circom";
+include "circomlib/circuits/mux1.circom";
 
 template BinarySelectorHasher() {
     signal input i;     // Must be 0 or 1
-    signal input a;     // Value when i = 0
-    signal input b;     // Value when i = 1
+    signal input a;     // Input
+    signal input b;     // Sibling
     signal output out;    // Result
+
+    log("a b", a, b);
+
+    component isZero = IsZero();
+    isZero.in <== b;
 
     // i must be binary (0 or 1)
     i * (1 - i) === 0;
@@ -14,9 +21,17 @@ template BinarySelectorHasher() {
     component hasher = Poseidon(2);
     // 0 selects a then b, 1 selects b then a
     hasher.inputs[0] <== a + i * (b - a);
-    hasher.inputs[1] <== b + (1 - i) * (a - b);
+    hasher.inputs[1] <== a + (1 - i) * (b - a);
 
-    out <== hasher.out;
+    log("inputs", hasher.inputs[0], hasher.inputs[1]);
+
+    component mux = Mux1();
+    mux.c[0] <== hasher.out;     // when isZero.out == 0 (sibling != 0)
+    mux.c[1] <== a;    // when isZero.out == 1 (sibling == 0)
+    mux.s <== isZero.out;
+    log("mux", mux.out);
+
+    out <== mux.out;
 }
 
 template MerkleVerifier(levs) {
@@ -41,9 +56,20 @@ template MerkleVerifier(levs) {
         hashers[i].b <== siblings[i];
     }
 
+    log("hash0", hashers[0].out);
+
     // Output the result
     root <== hashers[levs - 1].out;
 }
 
-// Main component
+// // Main component
 component main = MerkleVerifier(16);
+
+// root = 19961037077221450811179090755490497271310203121908505232896238333507349516398
+// root = hash("22", "77") 🥳
+
+/* INPUT = {
+    "value": "77",
+    "siblings": ["22", "0", "0", "0", "0","0", "0", "0", "0", "0","0", "0", "0", "0", "0","0"],
+    "flipOrder": ["1", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]
+} */
