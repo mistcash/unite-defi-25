@@ -133,3 +133,4 @@ keys/
 # Build output
 dist/
 build/
+.vercel

@@ -21,7 +21,7 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // API routes
-app.post('/api/generate-jwt', generateJWT);
+app.post('/generate-jwt', generateJWT);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
