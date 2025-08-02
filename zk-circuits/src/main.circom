@@ -2,25 +2,28 @@ pragma circom 2.0.0;
 
 include "circomlib/circuits/poseidon.circom";
 
-template HashPreimage() {
-    // Private input
-    signal input a;
-    signal input b;
-    
-    // Output
-    signal output hash;
-    
-    // Components
-    component hasher = Poseidon(2);
-    component equalCheck = IsEqual();
-    
+template MerkleVerifier(levs) {
+    signal input value;
+    signal input siblings[levs];
+    signal output root;
+    var results[levs];
+
+    component hashers[levs];
+
+    hashers[0] = Poseidon(2);
     // Hash the secret with nullifier
-    hasher.inputs[0] <== a;
-    hasher.inputs[1] <== b;
-    
+    hashers[0].inputs[0] <== value;
+    hashers[0].inputs[1] <== siblings[0];
+
+    for(var i = 1; i < levs; i++){
+        hashers[i] = Poseidon(2);
+        hashers[i].inputs[0] <== hashers[i-1].out;
+        hashers[i].inputs[1] <== siblings[i];
+    }
+
     // Output the result
-    hash <== hasher.out;
+    root <== hashers[levs - 1].out;
 }
 
 // Main component
-component main = HashPreimage();
+component main = MerkleVerifier(16);
