@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
+import { User, Key, DollarSign, AlertCircle } from 'lucide-react';
 import {
 	getAuth,
 	GoogleAuthProvider,
 	signInWithPopup,
 	onAuthStateChanged,
 	signOut as firebaseSignOut, // Alias signOut to avoid naming conflict
-	User // Import the User type
+	User as FirebaseUser // Import the User type and alias it
 } from "firebase/auth";
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app"; // Import types for app initialization
 // import { getAnalytics } from "firebase/analytics"; // Not directly used in this component, but you have it in your config.
@@ -35,28 +36,116 @@ if (!getApps().length) {
 
 const auth = getAuth(app); // Get the Auth service instance
 
+// Function to exchange Firebase token for real JWT
+const exchangeForRealJWT = async (firebaseToken: string): Promise<string | null> => {
+	try {
+		const response = await fetch('https://mist-unite-defi-jwt-shramee-shramees-projects.vercel.app/generate-jwt', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({
+				firebaseToken: firebaseToken
+			})
+		});
+
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+
+		const data = await response.json();
+		if (data.success && data.jwt) {
+			return data.jwt;
+		} else {
+			throw new Error('Failed to get JWT from response');
+		}
+	} catch (error) {
+		console.error('Error exchanging Firebase token for real JWT:', error);
+		throw error;
+	}
+};
+
 function LoginComponent() {
 	// Explicitly type the state variables
-	const [user, setUser] = useState<User | null>(null);
+	const [user, setUser] = useState<FirebaseUser | null>(null);
 	const [idToken, setIdToken] = useState<string | null>(null);
+	const [realJWT, setRealJWT] = useState<string | null>(null);
+	const [jwtLoading, setJwtLoading] = useState<boolean>(false);
+	const [recipientAddress, setRecipientAddress] = useState<string>('');
+	const [claimingKey, setClaimingKey] = useState<string>('');
+	const [amount, setAmount] = useState<string>('');
+	const [errors, setErrors] = useState<{
+		recipient?: string;
+		claimingKey?: string;
+	}>({});
 	const [error, setError] = useState<Error | null>(null); // Use Error type for errors
 	const [loading, setLoading] = useState<boolean>(true); // Initial loading state
 
+	// Validate recipient address/email
+	const validateRecipient = (value: string) => {
+		if (!value.trim()) return 'This field is required';
+		// For now, we'll accept any non-empty value
+		// In a real app, you'd validate based on the destination type
+		return undefined;
+	};
+
+	// Validate claiming key
+	const validateClaimingKey = (value: string) => {
+		if (!value.trim()) return 'Claiming key is required';
+		if (!/^(0x)?[a-fA-F0-9]{1,64}$/.test(value)) return 'Invalid claiming key format';
+		return undefined;
+	};
+
+	// Auto-generate claiming key when component mounts (client-side only)
+	useEffect(() => {
+		// Remove auto-generation for claiming interface
+		// Users must enter their claiming key manually
+	}, []);
+
+	// Handle recipient input change
+	const handleRecipientChange = (value: string) => {
+		setRecipientAddress(value);
+		const error = validateRecipient(value);
+		setErrors(prev => ({ ...prev, recipient: error }));
+	};
+
+	// Handle claiming key input change
+	const handleClaimingKeyChange = (value: string) => {
+		setClaimingKey(value);
+		const error = validateClaimingKey(value);
+		setErrors(prev => ({ ...prev, claimingKey: error }));
+	};
+
 	useEffect(() => {
 		// This listener observes your authentication state in real-time!
-		const unsubscribe = onAuthStateChanged(auth, async (currentUser: User | null) => {
+		const unsubscribe = onAuthStateChanged(auth, async (currentUser: FirebaseUser | null) => {
 			setUser(currentUser);
 			if (currentUser) {
+				(window as any).user = currentUser;
 				// If there's a user, get their ID token
 				try {
 					const token = await currentUser.getIdToken();
 					setIdToken(token);
+
+					// Exchange Firebase token for real JWT
+					setJwtLoading(true);
+					try {
+						const jwt = await exchangeForRealJWT(token);
+						setRealJWT(jwt);
+						console.log('Successfully obtained real JWT');
+					} catch (jwtError) {
+						console.error('Failed to exchange for real JWT:', jwtError);
+						setError(jwtError as Error);
+					} finally {
+						setJwtLoading(false);
+					}
 				} catch (e: any) { // Type the error as 'any' for now, or 'FirebaseError' if you import it
 					console.error("Error getting ID token:", e);
 					setError(e as Error); // Cast to Error type
 				}
 			} else {
 				setIdToken(null);
+				setRealJWT(null);
 			}
 			setLoading(false); // Authentication state loaded
 		});
@@ -101,7 +190,7 @@ function LoginComponent() {
 			<h2 style={{ textAlign: 'center', color: '#333' }}>Firebase Google Authentication (TypeScript Edition!)</h2>
 
 			{error && (
-				<div style={{ backgroundColor: '#ffe0e0', border: '1px solid #ff0000', color: '#ff0000', padding: '10px', borderRadius: '5px', marginBottom: '15px' }}>
+				<div style={{ border: '1px solid #ff0000', color: '#ff0000', padding: '10px', borderRadius: '5px', marginBottom: '15px' }}>
 					<p>Login failed: {error.message} {error instanceof Error && (error as any).code ? `(Code: ${(error as any).code})` : ''}</p>
 				</div>
 			)}
@@ -109,14 +198,182 @@ function LoginComponent() {
 			{user ? (
 				<div style={{ textAlign: 'center' }}>
 					<p style={{ fontSize: '1.1em', fontWeight: 'bold' }}>Welcome, {user.displayName || user.email}!</p>
-					<p>Your User ID: <code style={{ backgroundColor: '#eee', padding: '3px 6px', borderRadius: '3px' }}>{user.uid}</code></p>
-					<h3 style={{ marginTop: '20px', marginBottom: '10px' }}>Your JWT (ID Token):</h3>
-					<textarea
-						readOnly
-						value={idToken || "Fetching token..."}
-						style={{ width: '100%', height: '150px', backgroundColor: '#f9f9f9', padding: '10px', fontFamily: 'monospace', borderRadius: '5px', border: '1px solid #ddd', resize: 'vertical' }}
-					/>
-					<p style={{ fontSize: '0.9em', color: '#555' }}>You can send this JWT to your backend for verification!</p>
+					<p>Your User ID: <code style={{ padding: '3px 6px', borderRadius: '3px' }}>{user.uid}</code></p>
+
+					{/* JWT Status */}
+					{jwtLoading ? (
+						<div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f0f8ff', border: '1px solid #007acc', borderRadius: '5px' }}>
+							<p style={{ color: '#007acc', fontWeight: 'bold' }}>🔄 Exchanging Firebase token for real JWT...</p>
+						</div>
+					) : realJWT ? (
+						<div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f0fff0', border: '1px solid #28a745', borderRadius: '5px' }}>
+							<p style={{ color: '#28a745', fontWeight: 'bold' }}>✅ Valid JWT obtained successfully!</p>
+						</div>
+					) : (
+						<div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#fff5f5', border: '1px solid #dc3545', borderRadius: '5px' }}>
+							<p style={{ color: '#dc3545', fontWeight: 'bold' }}>❌ Failed to obtain real JWT</p>
+						</div>
+					)}
+
+					{/* Transaction Details - Using TransferUI styling */}
+					<div style={{ marginTop: '30px', maxWidth: '500px', margin: '30px auto 0', textAlign: 'left' }}>
+						<h3 style={{ marginBottom: '20px', textAlign: 'center', color: '#333' }}>Transaction Details</h3>
+
+						{/* Recipient Address */}
+						<div style={{ marginTop: '16px' }}>
+							<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: 'rgb(240, 245, 255)' }}>
+								Wallet Address
+							</label>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									padding: '12px',
+									borderRadius: '8px',
+									border: `1px solid ${errors.recipient ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'}`,
+									backgroundColor: 'rgba(63, 63, 63, 0.4)'
+								}}
+							>
+								<div style={{
+									width: '32px',
+									height: '32px',
+									borderRadius: '50%',
+									backgroundColor: 'rgb(255, 87, 34)',
+									display: 'none',
+									alignItems: 'center',
+									justifyContent: 'center'
+								}} className="hidden md:flex">
+									<User style={{ width: '16px', height: '16px', color: 'white' }} />
+								</div>
+								<input
+									type="text"
+									value={recipientAddress}
+									onChange={(e) => handleRecipientChange(e.target.value)}
+									placeholder="0xCe8...d129"
+									style={{
+										flex: 1,
+										backgroundColor: 'transparent',
+										color: 'white',
+										outline: 'none',
+										border: 'none',
+										fontSize: '14px'
+									}}
+									className="placeholder-gray-400"
+								/>
+							</div>
+							{errors.recipient && (
+								<div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px', color: 'rgb(248, 113, 113)', fontSize: '14px' }}>
+									<AlertCircle style={{ width: '16px', height: '16px' }} />
+									{errors.recipient}
+								</div>
+							)}
+						</div>
+
+						{/* Claiming Key */}
+						<div style={{ marginTop: '16px' }}>
+							<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: 'rgb(240, 245, 255)' }}>
+								Claiming Key
+								<span style={{ fontSize: '12px', color: 'rgb(156, 163, 175)', marginLeft: '8px' }}>(256-bit hex secret)</span>
+							</label>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									padding: '12px',
+									borderRadius: '8px',
+									border: `1px solid ${errors.claimingKey ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'}`,
+									backgroundColor: 'rgba(63, 63, 63, 0.4)'
+								}}
+							>
+								<div style={{
+									width: '32px',
+									height: '32px',
+									borderRadius: '50%',
+									backgroundColor: 'rgb(34, 197, 94)',
+									display: 'none',
+									alignItems: 'center',
+									justifyContent: 'center'
+								}} className="hidden md:flex">
+									<Key style={{ width: '16px', height: '16px', color: 'white' }} />
+								</div>
+								<input
+									type="text"
+									value={claimingKey}
+									onChange={(e) => handleClaimingKeyChange(e.target.value)}
+									placeholder="Enter your claiming key..."
+									style={{
+										flex: 1,
+										backgroundColor: 'transparent',
+										color: 'white',
+										outline: 'none',
+										border: 'none',
+										fontSize: '14px',
+										fontFamily: 'monospace',
+										letterSpacing: '0.05em',
+										wordBreak: 'break-all'
+									}}
+									className="placeholder-gray-400"
+								/>
+							</div>
+							{errors.claimingKey && (
+								<div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px', color: 'rgb(248, 113, 113)', fontSize: '14px' }}>
+									<AlertCircle style={{ width: '16px', height: '16px' }} />
+									{errors.claimingKey}
+								</div>
+							)}
+							<div style={{ marginTop: '4px', fontSize: '12px', color: 'rgb(156, 163, 175)' }}>
+								Enter the claiming key you received to claim the funds.
+							</div>
+						</div>
+
+						{/* Amount Section */}
+						<div style={{ marginBottom: '32px', marginTop: '16px' }}>
+							<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '12px', color: 'rgb(240, 245, 255)' }}>
+								Amount
+							</label>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '12px',
+									padding: '12px',
+									borderRadius: '8px',
+									border: '1px solid rgb(80, 80, 80)',
+									backgroundColor: 'rgba(63, 63, 63, 0.4)'
+								}}
+							>
+								<div style={{
+									width: '32px',
+									height: '32px',
+									borderRadius: '50%',
+									backgroundColor: 'rgb(34, 197, 94)',
+									display: 'none',
+									alignItems: 'center',
+									justifyContent: 'center'
+								}} className="hidden md:flex">
+									<DollarSign style={{ width: '16px', height: '16px', color: 'white' }} />
+								</div>
+								<input
+									type="text"
+									value={amount}
+									onChange={(e) => setAmount(e.target.value)}
+									placeholder="0.00"
+									style={{
+										flex: 1,
+										backgroundColor: 'transparent',
+										color: 'white',
+										outline: 'none',
+										border: 'none',
+										fontSize: '14px'
+									}}
+									className="placeholder-gray-400"
+								/>
+							</div>
+						</div>
+					</div>
+
 					<button
 						onClick={handleSignOut}
 						style={{

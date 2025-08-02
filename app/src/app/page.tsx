@@ -1,10 +1,14 @@
+'use client'
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import FloatingIslands from "../components/FloatingCones";
-import TransferUI from "../components/TransferUI";
-import ClaimUI from "../components/ClaimUI.tsx";
+import DepositUI from "../components/TransferUI";
+import ClaimUI from "../components/ClaimUI";
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<'deposit' | 'claim'>('deposit');
   return (
     <div className="font-sans min-h-screen scroll-smooth">
       {/* Hero Section */}
@@ -67,15 +71,58 @@ export default function Home() {
           </div>
           {/* Demo Section */}
           <section id="demo" className="max-w-4xl mx-auto acrylic py-20 px-4 md:px-8" style={{ backgroundColor: 'rgba(0, 0, 0, 0.3)' }}>
-            <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
-              Send money to a Gmail address from Base
-            </h2>
-            <p className="text-lg text-gray-300 text-center mb-12 max-w-2xl mx-auto">
-              Privately transaction to a gmail address from Base.<br />Claims are fulfilled on your network of choice with 1Inch Fusion+.
-            </p>
-            <div className="flex justify-center">
-              <TransferUI />
+            {/* Tab Navigation */}
+            <div className="flex justify-center mb-8">
+              <div className="bg-gray-800 bg-opacity-60 rounded-lg p-1 flex">
+                <button
+                  onClick={() => setActiveTab('deposit')}
+                  className={`px-6 py-3 rounded-md font-semibold transition-all ${activeTab === 'deposit'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                    }`}
+                >
+                  Send Payment
+                </button>
+                <button
+                  onClick={() => setActiveTab('claim')}
+                  className={`px-6 py-3 rounded-md font-semibold transition-all ${activeTab === 'claim'
+                      ? 'bg-blue-600 text-white shadow-lg'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                    }`}
+                >
+                  Claim Payment
+                </button>
+              </div>
             </div>
+
+            {/* Tab Content */}
+            {activeTab === 'deposit' && (
+              <>
+                <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
+                  Send money to a Gmail address from Base
+                </h2>
+                <p className="text-lg text-gray-300 text-center mb-12 max-w-2xl mx-auto">
+                  Privately transaction to a gmail address from Base.<br />Claims are fulfilled on your network of choice with 1Inch Fusion+.
+                </p>
+                <div className="flex justify-center">
+                  <DepositUI />
+                </div>
+              </>
+            )}
+
+            {activeTab === 'claim' && (
+              <>
+                <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
+                  Claim your payment with Gmail verification
+                </h2>
+                <p className="text-lg text-gray-300 text-center mb-12 max-w-2xl mx-auto">
+                  Sign in with your Gmail account to claim payments sent to your email address.<br />Zero-knowledge proofs verify your identity without revealing personal data.
+                </p>
+                <div className="flex justify-center">
+                  <ClaimUI />
+                </div>
+              </>
+            )}
           </section>
 
         </FloatingIslands>
