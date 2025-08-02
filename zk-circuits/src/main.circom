@@ -10,8 +10,6 @@ template BinarySelectorHasher() {
     signal input b;     // Sibling
     signal output out;    // Result
 
-    log("a b", a, b);
-
     component isZero = IsZero();
     isZero.in <== b;
 
@@ -22,14 +20,10 @@ template BinarySelectorHasher() {
     // 0 selects a then b, 1 selects b then a
     hasher.inputs[0] <== a + i * (b - a);
     hasher.inputs[1] <== a + (1 - i) * (b - a);
-
-    log("inputs", hasher.inputs[0], hasher.inputs[1]);
-
     component mux = Mux1();
     mux.c[0] <== hasher.out;     // when isZero.out == 0 (sibling != 0)
     mux.c[1] <== a;    // when isZero.out == 1 (sibling == 0)
     mux.s <== isZero.out;
-    log("mux", mux.out);
 
     out <== mux.out;
 }
@@ -55,9 +49,6 @@ template MerkleVerifier(levs) {
         hashers[i].a <== hashers[i-1].out;
         hashers[i].b <== siblings[i];
     }
-
-    log("hash0", hashers[0].out);
-
     // Output the result
     root <== hashers[levs - 1].out;
 }
