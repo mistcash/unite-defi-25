@@ -28,16 +28,16 @@ export default function Home() {
               MIST.cash | FOCBB
             </div>
             <h1 className="text-3xl md:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Send money to anyone<br />
-              <span className="text-blue-400">anywhere privately</span><br />
-              <span className="text-yellow-400">with compliance</span>
+              Send <span className="text-blue-400">USDC privately</span><br />
+              to any Gmail address<br />
+              <span className="text-yellow-400">across chains</span>
             </h1>
 
             {/* Cool arrow CTA */}
             <div className="flex flex-col items-center my-20">
               <a href="#demo" className="group flex flex-col items-center transition-transform duration-300">
                 <span className="text-white text-lg font-medium tracking-wide opacity-90 transition-opacity duration-500 animate-bounce">
-                  Make a private transaction
+                  Try the demo below
                 </span>
                 <div className="relative">
                   <div className="w-24 h-14 flex items-center justify-center transition-colors duration-300">
@@ -77,8 +77,8 @@ export default function Home() {
                 <button
                   onClick={() => setActiveTab('deposit')}
                   className={`px-6 py-3 rounded-md font-semibold transition-all ${activeTab === 'deposit'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
                     }`}
                 >
                   Send Payment
@@ -86,8 +86,8 @@ export default function Home() {
                 <button
                   onClick={() => setActiveTab('claim')}
                   className={`px-6 py-3 rounded-md font-semibold transition-all ${activeTab === 'claim'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-700'
                     }`}
                 >
                   Claim Payment
@@ -99,10 +99,10 @@ export default function Home() {
             {activeTab === 'deposit' && (
               <>
                 <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-8">
-                  Send money to a Gmail address from Base
+                  Send USDC to any Gmail address from Base
                 </h2>
                 <p className="text-lg text-gray-300 text-center mb-12 max-w-2xl mx-auto">
-                  Privately transaction to a gmail address from Base.<br />Claims are fulfilled on your network of choice with 1Inch Fusion+.
+                  Send USDC from Base to any Gmail address privately.<br />Recipients can claim on any chain using 1Inch Fusion+.
                 </p>
                 <div className="flex justify-center">
                   <DepositUI />
@@ -132,86 +132,94 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8 bg-gray-900 bg-opacity-80">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-16">
-            How Private Payments Work
+            How Cross-Chain Private Transfers Work
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center p-8 bg-gray-800 bg-opacity-60 rounded-xl">
               <div className="w-16 h-16 bg-blue-700 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">1</span>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-4">Sender Creates Payment</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Deposit on Base</h3>
               <p className="text-gray-300">
-                Sender generates a payment with a cryptographic secret, ensuring only the intended recipient can claim it.
+                Send USDC on Base to a Gmail address. The payment is stored privately using a cryptographic hash of the email and a random value.
               </p>
             </div>
             <div className="text-center p-8 bg-gray-800 bg-opacity-60 rounded-xl">
               <div className="w-16 h-16 bg-yellow-400 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-gray-900">2</span>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-4">Zero-Knowledge Proof</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Cross-Chain Storage</h3>
               <p className="text-gray-300">
-                Recipient proves knowledge of the secret using zero-knowledge proofs without revealing the secret itself.
+                Hyperlane transfers the payment data to Starknet, where it's stored in a Merkle tree for efficient verification.
               </p>
             </div>
             <div className="text-center p-8 bg-gray-800 bg-opacity-60 rounded-xl">
               <div className="w-16 h-16 bg-green-700 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl font-bold text-white">3</span>
               </div>
-              <h3 className="text-xl font-semibold text-white mb-4">Claim Funds</h3>
+              <h3 className="text-xl font-semibold text-white mb-4">Claim Anywhere</h3>
               <p className="text-gray-300">
-                Upon successful proof verification, funds are automatically released to the recipient&#39;s wallet.
+                Verify Gmail ownership with JWT, prove membership in the Merkle tree, and claim on any chain via 1Inch Fusion+.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* MIST Products Section */}
+      {/* Technical Architecture Section */}
       <section className="py-20 px-4 md:px-8">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-16">
-            MIST Privacy Solutions
+            Built on Leading Infrastructure
           </h2>
           <div className="grid md:grid-cols-2 gap-12">
             <div className="p-8 rounded-2xl" style={{ background: `linear-gradient(135deg, var(--navy-medium), var(--navy-bright))` }}>
-              <h3 className="text-3xl font-bold text-white mb-6">1. MIST Ledger</h3>
+              <h3 className="text-3xl font-bold text-white mb-6">Cross-Chain Architecture</h3>
               <p className="text-lg mb-6" style={{ color: 'var(--navy-pale)' }}>
-                Deploy your own private ledger with customizable compliance rules. Perfect for institutions
-                requiring jurisdiction-specific financial privacy.
+                Leveraging Hyperlane for seamless cross-chain messaging between Base and Starknet,
+                with 1Inch Fusion+ for efficient cross-chain claiming.
               </p>
               <ul className="space-y-3" style={{ color: 'var(--navy-pale)' }}>
                 <li className="flex items-start">
                   <span style={{ color: 'var(--gold-bright)' }} className="mr-3">•</span>
-                  Self-custodial privacy with user-controlled encryption
+                  Base network for USDC deposits
                 </li>
                 <li className="flex items-start">
                   <span style={{ color: 'var(--gold-bright)' }} className="mr-3">•</span>
-                  Configurable compliance for any jurisdiction
+                  Starknet for private storage and verification
                 </li>
                 <li className="flex items-start">
                   <span style={{ color: 'var(--gold-bright)' }} className="mr-3">•</span>
-                  Guaranteed exit rights
+                  Hyperlane for secure cross-chain messaging
+                </li>
+                <li className="flex items-start">
+                  <span style={{ color: 'var(--gold-bright)' }} className="mr-3">•</span>
+                  1Inch Fusion+ for multi-chain claiming
                 </li>
               </ul>
             </div>
             <div className="p-8 rounded-2xl" style={{ background: `linear-gradient(135deg, var(--navy-deep), var(--navy-medium))` }}>
-              <h3 className="text-3xl font-bold text-white mb-6">2. MIST Chamber</h3>
+              <h3 className="text-3xl font-bold text-white mb-6">Privacy & Security</h3>
               <p className="text-lg mb-6" style={{ color: 'var(--navy-pale)' }}>
-                Cross-chain privacy solution enabling private transfers across different blockchain networks
-                with full compliance integration.
+                Zero-knowledge proofs ensure privacy while JWT verification provides secure Gmail-based authentication
+                without revealing personal information.
               </p>
               <ul className="space-y-3" style={{ color: 'var(--navy-pale)' }}>
                 <li className="flex items-start">
                   <span style={{ color: 'var(--gold)' }} className="mr-3">•</span>
-                  Cross-chain interoperability
+                  JWT-based Gmail verification
                 </li>
                 <li className="flex items-start">
                   <span style={{ color: 'var(--gold)' }} className="mr-3">•</span>
-                  Homomorphic encryption for amounts
+                  Merkle tree proofs for efficient verification
                 </li>
                 <li className="flex items-start">
                   <span style={{ color: 'var(--gold)' }} className="mr-3">•</span>
-                  Real-time compliance monitoring
+                  Nullifier system prevents double-spending
+                </li>
+                <li className="flex items-start">
+                  <span style={{ color: 'var(--gold)' }} className="mr-3">•</span>
+                  Cryptographic email hashing for privacy
                 </li>
               </ul>
             </div>
@@ -219,77 +227,71 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FOCBB Partnership Section */}
+      {/* Demo Features Section */}
       <section className="py-20 px-4 md:px-8 bg-gray-900 bg-opacity-80">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-8">
-            FOCBB: Fully On-Chain Better Banks
+            Live Demo Features
           </h2>
           <p className="text-xl text-gray-300 text-center mb-16 max-w-4xl mx-auto">
-            Partner with us to build compliant privacy ledgers for the future of finance.
-            FOCBB provides the framework for secure, auditable private ledgers across blockchain networks.
+            Experience private cross-chain USDC transfers with Gmail-based claiming.
+            Built with cutting-edge zero-knowledge technology and cross-chain infrastructure.
           </p>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
             <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">
               <h3 className="text-xl font-semibold text-white mb-4">
-                Privacy <span className="text-blue-400">●</span>
+                Base Network <span className="text-blue-400">●</span>
               </h3>
               <p className="text-gray-300">
-                Confidentiality & anonymity with homomorphic encryption
+                Fast and cheap USDC deposits on Coinbase's Layer 2 solution
               </p>
             </div>
             <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">
               <h3 className="text-xl font-semibold text-white mb-4">
-                Compliance <span className="text-yellow-400">●</span>
+                Gmail Auth <span className="text-yellow-400">●</span>
               </h3>
               <p className="text-gray-300">
-                Configurable rules for any jurisdiction or regulatory requirement
+                Secure JWT-based verification without revealing personal data
               </p>
             </div>
             <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">
               <h3 className="text-xl font-semibold text-white mb-4">
-                Self-Custody <span className="text-blue-400">●</span>
+                Starknet Storage <span className="text-blue-400">●</span>
               </h3>
               <p className="text-gray-300">
-                Users maintain full control of their assets and encryption keys
+                Private storage with efficient Merkle tree verification
               </p>
             </div>
             <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">
               <h3 className="text-xl font-semibold text-white mb-4">
-                Interchain <span className="text-yellow-400">●</span>
+                1Inch Fusion+ <span className="text-yellow-400">●</span>
               </h3>
               <p className="text-gray-300">
-                Seamless asset movement across multiple blockchain networks
+                Claim your USDC on any supported blockchain network
               </p>
             </div>
           </div>
 
           <div className="p-8 bg-gray-800 bg-opacity-60 rounded-2xl border border-gray-700">
-            <h3 className="text-2xl font-bold text-white mb-6">Compliance Features for Enterprises</h3>
-            <div className="grid md:grid-cols-3 gap-6">
+            <h3 className="text-2xl font-bold text-white mb-6">Technical Implementation</h3>
+            <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h4 className="text-lg font-semibold text-blue-400 mb-3">Transaction Controls</h4>
+                <h4 className="text-lg font-semibold text-blue-400 mb-3">Deposit Flow</h4>
                 <ul className="text-gray-300 space-y-2 text-sm">
-                  <li>• Sanctioned address screening</li>
-                  <li>• Configurable delay periods</li>
-                  <li>• Transaction monitoring</li>
+                  <li>• Generate email_rnd_hash from Gmail + random value</li>
+                  <li>• Store USDC amount and token contract on Base</li>
+                  <li>• Dispatch to Starknet via Hyperlane messaging</li>
+                  <li>• Create Merkle tree entry for efficient verification</li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-lg font-semibold text-yellow-400 mb-3">Access Management</h4>
+                <h4 className="text-lg font-semibold text-yellow-400 mb-3">Claim Flow</h4>
                 <ul className="text-gray-300 space-y-2 text-sm">
-                  <li>• Whitelisted KYC entities</li>
-                  <li>• Compliance key verification</li>
-                  <li>• Role-based permissions</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-lg font-semibold text-green-400 mb-3">Threshold Enforcement</h4>
-                <ul className="text-gray-300 space-y-2 text-sm">
-                  <li>• Automated delays for high-value</li>
-                  <li>• Escalating restrictions</li>
-                  <li>• Real-time monitoring alerts</li>
+                  <li>• Verify JWT token for Gmail authentication</li>
+                  <li>• Generate Merkle proof for payment membership</li>
+                  <li>• Create nullifier to prevent double-spending</li>
+                  <li>• Claim via 1Inch Fusion+ on target network</li>
                 </ul>
               </div>
             </div>
@@ -301,23 +303,25 @@ export default function Home() {
       <section className="py-20 px-4 md:px-8 bg-gray-800 bg-opacity-30">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            Ready to Build the Future of Private Finance?
+            Experience Private Cross-Chain Transfers
           </h2>
           <p className="text-xl text-gray-300 mb-12">
-            Join the revolution in privacy-preserving payments. Whether you&#39;re a fintech startup,
-            enterprise, or financial institution, FOCBB provides the tools you need.
+            Try our live demo to send USDC from Base to any Gmail address,
+            then claim it on any supported blockchain network.
           </p>
           <div className="flex flex-col md:flex-row gap-6 justify-center">
             <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 md:px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-              Start Building
+              Try Demo Above
             </button>
-            <button className="border border-gray-400 text-white hover:bg-gray-700 px-4 md:px-8 py-4 rounded-lg font-semibold text-lg transition-colors">
-              Partnership Inquiry
-            </button>
+            <Link href="https://github.com/mistcash" target="_blank"
+              className="border border-gray-400 text-white hover:bg-gray-700 px-4 md:px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+            >
+              View on GitHub
+            </Link>
             <Link href="https://shhtarknet.github.io/mist/" target="_blank"
               className="bg-yellow-500 hover:bg-yellow-600 text-gray-900 px-4 md:px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
             >
-              Try Old Live Demo
+              Previous Demo
             </Link>
           </div>
         </div>
@@ -335,7 +339,7 @@ export default function Home() {
                 height={36}
                 style={{ filter: 'brightness(0) invert(1)' }}
               />
-              <p className="text-gray-400 mt-2">Building compliant privacy ledgers for the future</p>
+              <p className="text-gray-400 mt-2">Private cross-chain USDC transfers via Gmail</p>
             </div>
             <div className="flex space-x-6">
               <Link href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -350,7 +354,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
-            <p>&copy; 2025 MIST Cash. Building the future of private, compliant finance.</p>
+            <p>&copy; 2025 MIST Cash. Demonstrating private cross-chain USDC transfers.</p>
           </div>
         </div>
       </footer>

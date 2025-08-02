@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { User, Key, DollarSign, AlertCircle } from 'lucide-react';
+import { User, Key, DollarSign, AlertCircle, Check, X, RefreshCcw, Mail } from 'lucide-react';
 import {
 	getAuth,
 	GoogleAuthProvider,
@@ -182,220 +182,153 @@ function LoginComponent() {
 	};
 
 	if (loading) {
-		return <div>Loading authentication state...</div>;
+		return (
+			<div className="w-full max-w-2xl mx-auto p-6 bg-gray-800 bg-opacity-60 rounded-xl backdrop-blur-sm border border-gray-700">
+				<div className="flex items-center justify-center gap-3">
+					<RefreshCcw className="w-5 h-5 text-blue-400 animate-spin" />
+					<span className="text-white">Loading...</span>
+				</div>
+			</div>
+		);
 	}
 
 	return (
-		<div style={{ padding: '20px', border: '1px solid #ccc', borderRadius: '8px', maxWidth: '600px', margin: '20px auto', fontFamily: 'Arial, sans-serif' }}>
-			<h2 style={{ textAlign: 'center', color: '#333' }}>Firebase Google Authentication (TypeScript Edition!)</h2>
-
+		<div className="w-full max-w-2xl mx-auto p-6 bg-gray-800 bg-opacity-60 rounded-xl backdrop-blur-sm border border-gray-700">
 			{error && (
-				<div style={{ border: '1px solid #ff0000', color: '#ff0000', padding: '10px', borderRadius: '5px', marginBottom: '15px' }}>
-					<p>Login failed: {error.message} {error instanceof Error && (error as any).code ? `(Code: ${(error as any).code})` : ''}</p>
+				<div className="mb-4 p-4 bg-red-600 bg-opacity-20 border border-red-400 border-opacity-50 rounded-lg backdrop-blur-sm">
+					<div className="flex items-center gap-3">
+						<AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
+						<div>
+							<p className="text-red-300 font-medium">Sign in failed</p>
+							<p className="text-red-400 text-sm">{error.message}</p>
+						</div>
+					</div>
 				</div>
 			)}
 
 			{user ? (
-				<div style={{ textAlign: 'center' }}>
-					<p style={{ fontSize: '1.1em', fontWeight: 'bold' }}>Welcome, {user.displayName || user.email}!</p>
-					<p>Your User ID: <code style={{ padding: '3px 6px', borderRadius: '3px' }}>{user.uid}</code></p>
+				<div className="">
+					<div className="mt-8 max-w-lg mx-auto">
+						<div className="mb-4">
+							<h3 className="text-xl font-bold text-white mb-2">
+								Welcome, {(user.displayName || '').split(' ')[0] || 'there'}!
+							</h3>
+						</div>
 
-					{/* JWT Status */}
-					{jwtLoading ? (
-						<div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f0f8ff', border: '1px solid #007acc', borderRadius: '5px' }}>
-							<p style={{ color: '#007acc', fontWeight: 'bold' }}>🔄 Exchanging Firebase token for real JWT...</p>
-						</div>
-					) : realJWT ? (
-						<div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#f0fff0', border: '1px solid #28a745', borderRadius: '5px' }}>
-							<p style={{ color: '#28a745', fontWeight: 'bold' }}>✅ Valid JWT obtained successfully!</p>
-						</div>
-					) : (
-						<div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#fff5f5', border: '1px solid #dc3545', borderRadius: '5px' }}>
-							<p style={{ color: '#dc3545', fontWeight: 'bold' }}>❌ Failed to obtain real JWT</p>
-						</div>
-					)}
-
-					{/* Transaction Details - Using TransferUI styling */}
-					<div style={{ marginTop: '30px', maxWidth: '500px', margin: '30px auto 0', textAlign: 'left' }}>
-						<h3 style={{ marginBottom: '20px', textAlign: 'center', color: '#333' }}>Transaction Details</h3>
+						{/* Authentication Status */}
+						{jwtLoading ? (
+							<div className="flex gap-3">
+								<RefreshCcw className="w-5 h-5 text-blue-400 animate-spin" />
+								<p className="text-blue-300 font-medium">Verifying your Gmail account...</p>
+							</div>
+						) : realJWT ? (
+							<div className="flex gap-2">
+								<Check className="w-5 h-5 text-green-400" />
+								<p className="text-green-200 text-sm">You can now claim payments for <span className="tracking-wide text-green-100">{user.email}</span>.</p>
+							</div>
+						) : (
+							<div className="flex gap-3">
+								<X className="w-5 h-5 text-red-400" />
+								<p className="text-red-300 font-medium">Verification failed. Please try signing in again.</p>
+							</div>
+						)}
 
 						{/* Recipient Address */}
-						<div style={{ marginTop: '16px' }}>
-							<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: 'rgb(240, 245, 255)' }}>
-								Wallet Address
+						<div className="mt-4">
+							<label className="block text-sm font-medium mb-2" style={{ color: 'rgb(240, 245, 255)' }}>
+								Wallet address
 							</label>
 							<div
+								className="flex items-center space-x-3 p-3 rounded-lg border"
 								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '12px',
-									padding: '12px',
-									borderRadius: '8px',
-									border: `1px solid ${errors.recipient ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'}`,
-									backgroundColor: 'rgba(63, 63, 63, 0.4)'
+									backgroundColor: 'rgba(63, 63, 63, 0.4)',
+									borderColor: errors.recipient ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'
 								}}
 							>
-								<div style={{
-									width: '32px',
-									height: '32px',
-									borderRadius: '50%',
-									backgroundColor: 'rgb(255, 87, 34)',
-									display: 'none',
-									alignItems: 'center',
-									justifyContent: 'center'
-								}} className="hidden md:flex">
-									<User style={{ width: '16px', height: '16px', color: 'white' }} />
+								<div className="hidden w-8 h-8 rounded-full md:flex items-center justify-center" style={{ backgroundColor: 'rgb(255, 87, 34)' }}>
+									<User className="w-4 h-4 text-white" />
 								</div>
 								<input
 									type="text"
 									value={recipientAddress}
 									onChange={(e) => handleRecipientChange(e.target.value)}
-									placeholder="0xCe8...d129"
-									style={{
-										flex: 1,
-										backgroundColor: 'transparent',
-										color: 'white',
-										outline: 'none',
-										border: 'none',
-										fontSize: '14px'
-									}}
-									className="placeholder-gray-400"
+									placeholder={'Address (0x...)'}
+									className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none font-mono text-sm tracking-wide"
 								/>
 							</div>
 							{errors.recipient && (
-								<div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px', color: 'rgb(248, 113, 113)', fontSize: '14px' }}>
-									<AlertCircle style={{ width: '16px', height: '16px' }} />
+								<div className="mt-1 flex items-center gap-1 text-red-400 text-sm">
+									<AlertCircle className="w-4 h-4" />
 									{errors.recipient}
 								</div>
 							)}
 						</div>
 
 						{/* Claiming Key */}
-						<div style={{ marginTop: '16px' }}>
-							<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '8px', color: 'rgb(240, 245, 255)' }}>
+						<div className="mt-4">
+							<label className="block text-sm font-medium mb-2" style={{ color: 'rgb(240, 245, 255)' }}>
 								Claiming Key
-								<span style={{ fontSize: '12px', color: 'rgb(156, 163, 175)', marginLeft: '8px' }}>(256-bit hex secret)</span>
 							</label>
 							<div
+								className="flex items-center space-x-3 p-3 rounded-lg border"
 								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '12px',
-									padding: '12px',
-									borderRadius: '8px',
-									border: `1px solid ${errors.claimingKey ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'}`,
-									backgroundColor: 'rgba(63, 63, 63, 0.4)'
+									backgroundColor: 'rgba(63, 63, 63, 0.4)',
+									borderColor: errors.claimingKey ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'
 								}}
 							>
-								<div style={{
-									width: '32px',
-									height: '32px',
-									borderRadius: '50%',
-									backgroundColor: 'rgb(34, 197, 94)',
-									display: 'none',
-									alignItems: 'center',
-									justifyContent: 'center'
-								}} className="hidden md:flex">
-									<Key style={{ width: '16px', height: '16px', color: 'white' }} />
+								<div className="hidden w-8 h-8 rounded-full md:flex items-center justify-center" style={{ backgroundColor: 'rgb(34, 197, 94)' }}>
+									<Key className="w-4 h-4 text-white" />
 								</div>
 								<input
 									type="text"
 									value={claimingKey}
 									onChange={(e) => handleClaimingKeyChange(e.target.value)}
-									placeholder="Enter your claiming key..."
-									style={{
-										flex: 1,
-										backgroundColor: 'transparent',
-										color: 'white',
-										outline: 'none',
-										border: 'none',
-										fontSize: '14px',
-										fontFamily: 'monospace',
-										letterSpacing: '0.05em',
-										wordBreak: 'break-all'
-									}}
-									className="placeholder-gray-400"
+									placeholder="Claiming key from sender (0x...)"
+									className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none font-mono text-sm tracking-wide"
 								/>
 							</div>
 							{errors.claimingKey && (
-								<div style={{ marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px', color: 'rgb(248, 113, 113)', fontSize: '14px' }}>
-									<AlertCircle style={{ width: '16px', height: '16px' }} />
+								<div className="mt-1 flex items-center gap-1 text-red-400 text-sm">
+									<AlertCircle className="w-4 h-4" />
 									{errors.claimingKey}
 								</div>
 							)}
-							<div style={{ marginTop: '4px', fontSize: '12px', color: 'rgb(156, 163, 175)' }}>
-								Enter the claiming key you received to claim the funds.
+							<div className="mt-1 text-xs text-gray-400">
+								Enter the claiming key provided by the sender.
 							</div>
 						</div>
 
-						{/* Amount Section */}
-						<div style={{ marginBottom: '32px', marginTop: '16px' }}>
-							<label style={{ display: 'block', fontSize: '14px', fontWeight: '500', marginBottom: '12px', color: 'rgb(240, 245, 255)' }}>
-								Amount
-							</label>
-							<div
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '12px',
-									padding: '12px',
-									borderRadius: '8px',
-									border: '1px solid rgb(80, 80, 80)',
-									backgroundColor: 'rgba(63, 63, 63, 0.4)'
-								}}
+						{/* Claim Button */}
+						<div className="mt-8 flex justify-center">
+							{realJWT && (
+								<button
+									disabled={!recipientAddress || !claimingKey || !!errors.recipient || !!errors.claimingKey}
+									className="px-2 md:px-4 mr-4 py-3 bg-green-600 hover:bg-green-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
+								>
+									<DollarSign className="w-4 h-4" />
+									Claim Payment
+								</button>
+							)}
+
+							<button
+								onClick={handleSignOut}
+								className="px-2 md:px-4 py-3 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-2"
 							>
-								<div style={{
-									width: '32px',
-									height: '32px',
-									borderRadius: '50%',
-									backgroundColor: 'rgb(34, 197, 94)',
-									display: 'none',
-									alignItems: 'center',
-									justifyContent: 'center'
-								}} className="hidden md:flex">
-									<DollarSign style={{ width: '16px', height: '16px', color: 'white' }} />
-								</div>
-								<input
-									type="text"
-									value={amount}
-									onChange={(e) => setAmount(e.target.value)}
-									placeholder="0.00"
-									style={{
-										flex: 1,
-										backgroundColor: 'transparent',
-										color: 'white',
-										outline: 'none',
-										border: 'none',
-										fontSize: '14px'
-									}}
-									className="placeholder-gray-400"
-								/>
-							</div>
+								<X className="w-4 h-4" />
+								Sign Out
+							</button>
 						</div>
 					</div>
-
-					<button
-						onClick={handleSignOut}
-						style={{
-							marginTop: '20px', padding: '12px 25px', backgroundColor: '#dc3545', color: 'white',
-							border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '1em',
-							boxShadow: '0 2px 4px rgba(0,0,0,0.2)', transition: 'background-color 0.3s'
-						}}
-					>
-						Sign Out
-					</button>
 				</div>
 			) : (
-				<div style={{ textAlign: 'center' }}>
-					<p style={{ fontSize: '1.1em', color: '#555' }}>You are currently not signed in.</p>
+				<div className="text-center">
+					<div className="mb-6">
+						<h3 className="text-xl font-medium text-white mb-2">Sign in to claim payments</h3>
+						<p className="text-gray-400">Connect your Gmail account to claim payments sent to your email address.</p>
+					</div>
 					<button
 						onClick={handleGoogleSignIn}
-						style={{
-							marginTop: '20px', padding: '12px 25px', backgroundColor: '#4285F4', color: 'white',
-							border: 'none', borderRadius: '5px', cursor: 'pointer', fontSize: '1em',
-							boxShadow: '0 2px 4px rgba(0,0,0,0.2)', transition: 'background-color 0.3s',
-							display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '10px'
-						}}
+						className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors duration-200 flex items-center gap-3 mx-auto"
 					>
 						<svg width="20" height="20" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M17.64 9.2045C17.64 8.5605 17.5845 7.9545 17.4705 7.3875H9V10.875H13.8465C13.6215 12.0465 12.915 13.0125 11.961 13.6545V15.903H14.9085C16.6395 14.346 17.64 12.003 17.64 9.2045Z" fill="#4285F4" />
@@ -406,8 +339,9 @@ function LoginComponent() {
 						Sign in with Google
 					</button>
 				</div>
-			)}
-		</div>
+			)
+			}
+		</div >
 	);
 }
 

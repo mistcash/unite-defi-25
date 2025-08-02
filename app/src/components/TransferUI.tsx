@@ -433,7 +433,7 @@ export default function TransferUI() {
 						type="text"
 						value={recipientAddress}
 						onChange={(e) => handleRecipientChange(e.target.value)}
-						placeholder={selectedToNetwork.toLowerCase() === 'gmail' ? 'user@gmail.com' : '0xCe8...d129'}
+						placeholder={selectedToNetwork.toLowerCase() === 'gmail' ? 'user@gmail.com' : 'Address (0x)'}
 						className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none"
 					/>
 				</div>
