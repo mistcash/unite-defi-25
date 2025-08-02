@@ -1,3 +1,5 @@
+mod merkle;
+
 /// Interface representing `HelloContract`.
 /// This interface allows modification and retrieval of the contract balance.
 #[starknet::interface]
