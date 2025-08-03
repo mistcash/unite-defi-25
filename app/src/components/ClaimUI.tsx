@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import { User, Key, DollarSign, AlertCircle, Check, X, RefreshCcw, Mail } from 'lucide-react';
+import { User, Key, DollarSign, AlertCircle, Check, X, RefreshCcw } from 'lucide-react';
 import {
 	getAuth,
 	GoogleAuthProvider,
@@ -68,12 +68,10 @@ const exchangeForRealJWT = async (firebaseToken: string): Promise<string | null>
 function LoginComponent() {
 	// Explicitly type the state variables
 	const [user, setUser] = useState<FirebaseUser | null>(null);
-	const [idToken, setIdToken] = useState<string | null>(null);
 	const [realJWT, setRealJWT] = useState<string | null>(null);
 	const [jwtLoading, setJwtLoading] = useState<boolean>(false);
 	const [recipientAddress, setRecipientAddress] = useState<string>('');
 	const [claimingKey, setClaimingKey] = useState<string>('');
-	const [amount, setAmount] = useState<string>('');
 	const [errors, setErrors] = useState<{
 		recipient?: string;
 		claimingKey?: string;
@@ -121,12 +119,9 @@ function LoginComponent() {
 		const unsubscribe = onAuthStateChanged(auth, async (currentUser: FirebaseUser | null) => {
 			setUser(currentUser);
 			if (currentUser) {
-				(window as any).user = currentUser;
 				// If there's a user, get their ID token
 				try {
 					const token = await currentUser.getIdToken();
-					setIdToken(token);
-
 					// Exchange Firebase token for real JWT
 					setJwtLoading(true);
 					try {
@@ -139,12 +134,11 @@ function LoginComponent() {
 					} finally {
 						setJwtLoading(false);
 					}
-				} catch (e: any) { // Type the error as 'any' for now, or 'FirebaseError' if you import it
+				} catch (e: unknown) { // Type the error as 'any' for now, or 'FirebaseError' if you import it
 					console.error("Error getting ID token:", e);
 					setError(e as Error); // Cast to Error type
 				}
 			} else {
-				setIdToken(null);
 				setRealJWT(null);
 			}
 			setLoading(false); // Authentication state loaded

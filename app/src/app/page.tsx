@@ -150,7 +150,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-white mb-4">Cross-Chain Storage</h3>
               <p className="text-gray-300">
-                Hyperlane transfers the payment data to Starknet, where it's stored in a Merkle tree for efficient verification.
+                Hyperlane transfers the payment data to Starknet, where it&#39;s stored in a Merkle tree for efficient verification.
               </p>
             </div>
             <div className="text-center p-8 bg-gray-800 bg-opacity-60 rounded-xl">
@@ -244,7 +244,7 @@ export default function Home() {
                 Base Network <span className="text-blue-400">●</span>
               </h3>
               <p className="text-gray-300">
-                Fast and cheap USDC deposits on Coinbase's Layer 2 solution
+                Fast and cheap USDC deposits on Coinbase&#39;s Layer 2 solution
               </p>
             </div>
             <div className="text-center p-6 bg-gray-800 bg-opacity-50 rounded-xl border border-gray-700">

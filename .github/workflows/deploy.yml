@@ -35,7 +35,7 @@ jobs:
         pnpm build
 
     - name: Add CNAME
-      run: echo 'mist.cash' > app/out/CNAME
+      run: echo 'unite-defi.mist.cash' > app/out/CNAME
 
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@v4

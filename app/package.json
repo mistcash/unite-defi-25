@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "next build && npx gh-pages --nojekyll --dotfiles -d out -r https://github.com/mistcash/landing.git"
+    "deploy": "next build && npx gh-pages --nojekyll --dotfiles -d out -r https://github.com/mistcash/landing.git",
+    "dep": "next build && npx gh-pages --nojekyll --dotfiles -d out"
   },
   "dependencies": {
     "@reown/appkit": "^1.7.17",
