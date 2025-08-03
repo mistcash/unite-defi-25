@@ -6,6 +6,7 @@ edition = "2024_07"
 # See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
 
 [dependencies]
+alexandria_bytes = "0.5.1"
 alexandria_merkle_tree = "0.5.1"
 garaga = { version = "0.18.1", git = "https://github.com/keep-starknet-strange/garaga" }
 openzeppelin_access = "2.0.0"
@@ -21,6 +22,7 @@ sierra = true
 
 [scripts]
 test = "snforge test"
+declare = "starkli declare ./target/dev/mist_core_Core.contract_class.json"
 
 [tool.scarb]
 allow-prebuilt-plugins = ["snforge_std"]

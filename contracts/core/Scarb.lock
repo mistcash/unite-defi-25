@@ -2,6 +2,22 @@
 version = 1
 
 [[package]]
+name = "alexandria_bytes"
+version = "0.5.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:d81f778c117eef7ab8e381edf5f722894502826b4a8a55ce0d280162034f8dbe"
+dependencies = [
+ "alexandria_data_structures",
+ "alexandria_math",
+]
+
+[[package]]
+name = "alexandria_data_structures"
+version = "0.5.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:5dc2aff25100299ff54ba81e80fc70f5150d4a4e06c46b588227d20fb754137d"
+
+[[package]]
 name = "alexandria_math"
 version = "0.5.1"
 source = "registry+https://scarbs.xyz/"
@@ -25,6 +41,7 @@ source = "git+https://github.com/keep-starknet-strange/garaga#5c5859e6dc5515f542
 name = "mist_core"
 version = "0.1.0"
 dependencies = [
+ "alexandria_bytes",
  "alexandria_merkle_tree",
  "garaga",
  "openzeppelin_access",
