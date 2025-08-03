@@ -1,9 +1,10 @@
 pub mod merkle;
 
-#[derive(Clone, starknet::Store)]
+#[derive(Copy, Drop, Serde, starknet::Store)]
 pub struct Msg {
     origin: u32,
     sender: u256,
+    len: usize,
 }
 
 
@@ -66,9 +67,20 @@ mod Core {
 
     #[external(v0)]
     fn handle(ref self: ContractState, origin: u32, sender: u256, messageBody: Bytes) {
-        self.msg.write(Msg { origin, sender });
-        for d in messageBody.data() {
+        let data = messageBody.data();
+        self.msg.write(Msg { origin, sender, len: data.len() });
+        for d in data {
             self.msgContent.push(d);
         }
+    }
+
+    #[external(v0)]
+    fn last_msg(self: @ContractState) -> Msg {
+        self.msg.read()
+    }
+
+    #[external(v0)]
+    fn read_msg(self: @ContractState, i: u64) -> u128 {
+        self.msgContent.at(i).read()
     }
 }
