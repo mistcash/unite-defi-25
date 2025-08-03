@@ -25,7 +25,7 @@ interface IMailbox {
  * @title Owner
  * @dev Set & change owner
  */
-contract Endpoint is ReentrancyGuard {
+contract MistAdapter is ReentrancyGuard {
     IMailbox public immutable mailbox;
     uint32 public immutable localDomain;
     
@@ -34,6 +34,8 @@ contract Endpoint is ReentrancyGuard {
     
     // snCoreAddress contract address on Starknet (set in constructor)
     bytes32 private snCoreAddress;
+
+    address public constant TOKEN = 0x036CbD53842c5426634e7929541eC2318f3dCF7e;
 
     constructor(
         address _mailbox,
@@ -60,7 +62,6 @@ contract Endpoint is ReentrancyGuard {
 
     // Message structure for cross-chain communication
     struct Deposit {
-        address token;
         uint256 amount;
         address sender;
         uint256 hash;
@@ -68,34 +69,29 @@ contract Endpoint is ReentrancyGuard {
 
     // Message structure for cross-chain communication
     struct Withdraw {
-        address token;
         uint256 amount;
         address recipient;
     }
 
     /**
      * @notice Receive funds and hash message, then forward to Starknet
-     * @param _token Address of the token contract
      * @param _amount Amount of tokens to bridge
      * @param _hashMessage Hash message to include
      */
     function private_tx(
-        address _token,
         uint256 _amount,
         uint256 _hashMessage
-    ) external payable {
-        require(_token != address(0), "Invalid token address");
+    ) external {
         require(_amount > 0, "Amount must be greater than 0");
         
         // Transfer tokens from sender to this contract
-        IERC20 token = IERC20(_token);
+        IERC20 token = IERC20(TOKEN);
         require(
             token.transferFrom(msg.sender, address(this), _amount),
             "Token transfer failed"
         );
 
         Deposit memory message = Deposit({
-            token: _token,
             amount: _amount,
             sender: msg.sender,
             hash: _hashMessage
@@ -112,19 +108,12 @@ contract Endpoint is ReentrancyGuard {
             messageBody
         );
         
-        require(msg.value >= fee, "Insufficient fee for dispatch");
-        
         // Send message to Starknet via Hyperlane
         mailbox.dispatch{value: fee}(
             STARKNET_DOMAIN,
             snCoreBytes32,
             messageBody
         );
-        
-        // Refund excess fee
-        if (msg.value > fee) {
-            payable(msg.sender).transfer(msg.value - fee);
-        }
     }
     
     /**
@@ -152,12 +141,7 @@ contract Endpoint is ReentrancyGuard {
         require(wMessage.amount > 0, "Invalid amount");
         
         // Transfer tokens to recipient
-        IERC20 token = IERC20(wMessage.token);
-        require(
-            token.balanceOf(address(this)) >= wMessage.amount,
-            "Insufficient contract balance"
-        );
-        
+        IERC20 token = IERC20(TOKEN);
         require(
             token.transfer(wMessage.recipient, wMessage.amount),
             "Token transfer failed"
@@ -166,18 +150,15 @@ contract Endpoint is ReentrancyGuard {
     
     /**
      * @notice Get quote for bridging to Starknet
-     * @param _token Token address
      * @param _amount Amount to bridge
      * @param _hashMessage Hash message
      * @return fee Required fee for the bridge operation
      */
     function quoteBridgeToStarknet(
-        address _token,
         uint256 _amount,
         uint256 _hashMessage
     ) external view returns (uint256 fee) {
         Deposit memory message = Deposit({
-            token: _token,
             sender: msg.sender,
             amount: _amount,
             hash: _hashMessage
