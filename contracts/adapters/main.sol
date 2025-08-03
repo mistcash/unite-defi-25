@@ -30,14 +30,15 @@ contract Endpoint is ReentrancyGuard {
     uint32 public immutable localDomain;
     
     // Starknet Mainnet domain ID on Hyperlane
-    uint32 public constant STARKNET_DOMAIN = 1553125230;
+    uint32 public immutable STARKNET_DOMAIN;
     
     // snCoreAddress contract address on Starknet (set in constructor)
     bytes32 private snCoreAddress;
 
     constructor(
         address _mailbox,
-        bytes32 _snCoreAddress
+        bytes32 _snCoreAddress,
+        uint32 _STARKNET_DOMAIN
     ) {
         require(_mailbox != address(0), "Invalid mailbox address");
         require(_snCoreAddress != 0, "Invalid snCoreAddress address");
@@ -45,6 +46,8 @@ contract Endpoint is ReentrancyGuard {
         mailbox = IMailbox(_mailbox);
         localDomain = mailbox.localDomain();
         snCoreAddress = _snCoreAddress;
+        STARKNET_DOMAIN = _STARKNET_DOMAIN;
+
     }
 
     modifier onlyMailbox() {
@@ -193,3 +196,6 @@ contract Endpoint is ReentrancyGuard {
     // Receive ETH
     receive() external payable {}
 }
+
+// For Base Sepolia
+// 0x6966b0E55883d49BFB24539356a2f8A673E02039, 0x01c8f90fb3daf75e3d68fe62bd5d93f7589a150d1545870f9551e6ce7fab67a0, 23448591
