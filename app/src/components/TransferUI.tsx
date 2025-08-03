@@ -2,14 +2,27 @@
 
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Send, Check, AlertCircle, AlertTriangle, Key, User, Mail, Globe, DollarSign, Coins, Zap } from 'lucide-react';
-import { useAccount, useConnect, useSendTransaction, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
-import { parseEther } from 'viem';
+import { useAccount, useConnect, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi';
+import { parseUnits, keccak256, encodePacked } from 'viem';
 import { base } from 'wagmi/chains';
 
 interface TransferUIError {
 	recipient?: string;
 	claimingKey?: string;
+	amount?: string;
 }
+
+// Contract addresses and minimal ABIs
+const USDC_ADDRESS = '0x036CbD53842c5426634e7929541eC2318f3dCF7e' as const;
+const PRIVATE_TX_ADDRESS = '0x72727C53dca4f739974F403C8044008Fe4CA2771' as const;
+
+const ERC20_ABI = [
+	{ inputs: [{ name: 'spender', type: 'address' }, { name: 'amount', type: 'uint256' }], name: 'approve', outputs: [{ name: '', type: 'bool' }], stateMutability: 'nonpayable', type: 'function' }
+] as const;
+
+const PRIVATE_TX_ABI = [
+	{ inputs: [{ name: '_amount', type: 'uint256' }, { name: '_hashMessage', type: 'uint256' }], name: 'private_tx', outputs: [], stateMutability: 'nonpayable', type: 'function' }
+] as const;
 
 export default function TransferUI() {
 	const [selectedToken, setSelectedToken] = useState('usdc');
@@ -17,14 +30,37 @@ export default function TransferUI() {
 	const [selectedToNetwork, setSelectedToNetwork] = useState('gmail');
 	const [recipientAddress, setRecipientAddress] = useState('');
 	const [claimingKey, setClaimingKey] = useState('');
+	const [amount, setAmount] = useState('0.02');
 	const [errors, setErrors] = useState<TransferUIError>({});
+	const [currentStep, setCurrentStep] = useState<'idle' | 'approving' | 'sending'>('idle');
 
 	// Wagmi hooks
 	const { address, isConnected, chain } = useAccount();
 	const { connect, connectors } = useConnect();
-	const { data: hash, sendTransaction, isPending: isSending } = useSendTransaction();
-	const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 	const { switchChain } = useSwitchChain();
+
+	// Separate hooks for approval and private_tx
+	const {
+		writeContract: writeApproval,
+		isPending: isApprovePending,
+		data: approveHash,
+		error: approveError
+	} = useWriteContract();
+
+	const {
+		writeContract: writePrivateTx,
+		isPending: isPrivateTxPending,
+		data: privateTxHash,
+		error: privateTxError
+	} = useWriteContract();
+
+	// Transaction receipt hooks
+	const { isLoading: isApproveConfirming, isSuccess: isApproveSuccess } = useWaitForTransactionReceipt({
+		hash: approveHash
+	});
+	const { isLoading: isPrivateTxConfirming, isSuccess: isPrivateTxSuccess } = useWaitForTransactionReceipt({
+		hash: privateTxHash
+	});
 
 	// Popup states
 	const [showFromNetworkPopup, setShowFromNetworkPopup] = useState(false);
@@ -255,56 +291,76 @@ export default function TransferUI() {
 		return undefined;
 	};
 
-	// Handle approve and send functionality using wagmi
+	// Simple hash function (placeholder for Poseidon)
+	const createHashMessage = (recipient: string, claimingKey: string): bigint => {
+		const packed = encodePacked(['string', 'string'], [recipient, claimingKey]);
+		return BigInt(keccak256(packed));
+	};
+
+	// Handle amount change
+	const handleAmountChange = (value: string) => {
+		setAmount(value);
+		const error = !value.trim() ? 'Amount is required' : (isNaN(parseFloat(value)) || parseFloat(value) <= 0) ? 'Invalid amount' : undefined;
+		setErrors(prev => ({ ...prev, amount: error }));
+	};
+
+	// Handle approve and send functionality
 	const handleApproveAndSend = async () => {
 		const recipientError = validateRecipient(recipientAddress, selectedToNetwork.toLowerCase());
 		const claimingKeyError = validateClaimingKey(claimingKey);
+		const amountError = !amount.trim() ? 'Amount is required' : (isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) ? 'Invalid amount' : undefined;
 
-		if (recipientError || claimingKeyError) {
+		if (recipientError || claimingKeyError || amountError) {
 			setErrors(prev => ({
 				...prev,
 				recipient: recipientError,
-				claimingKey: claimingKeyError
+				claimingKey: claimingKeyError,
+				amount: amountError
 			}));
 			return;
 		}
 
 		if (!isConnected) {
-			// Connect to the first available connector (usually MetaMask/injected)
 			const connector = connectors.find(c => c.type === 'injected') || connectors[0];
-			if (connector) {
-				connect({ connector });
-			}
+			if (connector) connect({ connector });
+			return;
+		}
+
+		if (chain?.id !== BASE_CHAIN_ID) {
+			switchChain({ chainId: BASE_CHAIN_ID });
 			return;
 		}
 
 		try {
-			// Ensure we're on Base network for Base transfers
-			if (selectedToNetwork.toLowerCase() === 'base' && chain?.id !== BASE_CHAIN_ID) {
-				switchChain({ chainId: BASE_CHAIN_ID });
-				return;
-			}
+			const amountWei = parseUnits(amount, 6); // USDC has 6 decimals
+			console.log('Amount in Wei:', amountWei.toString());
 
-			if (selectedToNetwork.toLowerCase() === 'gmail') {
-				// Handle Gmail transfers (would integrate with your MIST system)
-				// This would be handled differently, possibly through an API call
-				alert('Gmail transfer integration not implemented yet');
-				return;
-			}
-
-			// Handle blockchain transfers using wagmi
-			if (selectedToken.toLowerCase() === 'eth') {
-				// ETH transfer
-				sendTransaction({
-					to: recipientAddress as `0x${string}`,
-					value: parseEther('0.1'), // 0.1 ETH - replace with actual amount from form
+			if (currentStep === 'idle') {
+				// Step 1: Approve USDC
+				console.log('Starting approval for USDC...');
+				setCurrentStep('approving');
+				writeApproval({
+					address: USDC_ADDRESS,
+					abi: ERC20_ABI,
+					functionName: 'approve',
+					args: [PRIVATE_TX_ADDRESS, amountWei]
 				});
-			} else {
-				// For now, show that token transfers need contract interaction
-				alert('Token transfers will be implemented with useWriteContract');
+			} else if (currentStep === 'approving' && isApproveSuccess) {
+				// Step 2: Call private_tx
+				console.log('Approval successful, calling private_tx...');
+				setCurrentStep('sending');
+				const hashMessage = createHashMessage(recipientAddress, claimingKey);
+				console.log('Hash message:', hashMessage.toString());
+				writePrivateTx({
+					address: PRIVATE_TX_ADDRESS,
+					abi: PRIVATE_TX_ABI,
+					functionName: 'private_tx',
+					args: [amountWei, hashMessage]
+				});
 			}
 		} catch (error: unknown) {
 			console.error('Transaction failed:', error);
+			setCurrentStep('idle');
 		}
 	};
 
@@ -312,14 +368,34 @@ export default function TransferUI() {
 		return !selectedToNetwork ? 'Anyone' : selectedToNetwork.toLowerCase() === 'gmail' ? 'Email Address' : 'Wallet address';
 	};
 
-	const isFormValid = !errors.recipient && !errors.claimingKey && recipientAddress.trim() && claimingKey.trim() && selectedToNetwork;
-	const isOnCorrectChain = !selectedToNetwork || selectedToNetwork.toLowerCase() !== 'base' || chain?.id === BASE_CHAIN_ID;
+	const isFormValid = !errors.recipient && !errors.claimingKey && !errors.amount &&
+		recipientAddress.trim() && claimingKey.trim() && amount.trim() && selectedToNetwork;
+	const isOnCorrectChain = chain?.id === BASE_CHAIN_ID;
+
+	// Reset step when transaction completes
+	useEffect(() => {
+		if (isPrivateTxSuccess && currentStep === 'sending') {
+			setCurrentStep('idle');
+		}
+	}, [isPrivateTxSuccess, currentStep]);
+
+	// Handle errors
+	useEffect(() => {
+		if (approveError) {
+			console.error('Approval error:', approveError);
+			setCurrentStep('idle');
+		}
+		if (privateTxError) {
+			console.error('Private TX error:', privateTxError);
+			setCurrentStep('idle');
+		}
+	}, [approveError, privateTxError]);
 
 	// Determine transaction state for UI
 	const getTransactionState = () => {
-		if (isSending) return 'sending';
-		if (isConfirming) return 'confirming';
-		if (isConfirmed) return 'sent';
+		if (isApprovePending || isApproveConfirming) return 'approving';
+		if (isPrivateTxPending || isPrivateTxConfirming) return 'sending';
+		if (isPrivateTxSuccess && currentStep === 'sending') return 'sent';
 		return 'idle';
 	};
 
@@ -496,7 +572,7 @@ export default function TransferUI() {
 					className="flex items-center space-x-3 p-3 rounded-lg border"
 					style={{
 						backgroundColor: 'rgba(63, 63, 63, 0.4)',
-						borderColor: 'rgb(80, 80, 80)'
+						borderColor: errors.amount ? 'rgb(239, 68, 68)' : 'rgb(80, 80, 80)'
 					}}
 				>
 					<div className="hidden w-8 h-8 rounded-full md:flex items-center justify-center" style={{ backgroundColor: 'rgb(34, 197, 94)' }}>
@@ -504,11 +580,18 @@ export default function TransferUI() {
 					</div>
 					<input
 						type="text"
+						value={amount}
+						onChange={(e) => handleAmountChange(e.target.value)}
 						placeholder="0.00"
 						className="flex-1 bg-transparent text-white placeholder-gray-400 outline-none"
-						defaultValue="1.221633"
 					/>
 				</div>
+				{errors.amount && (
+					<div className="mt-1 flex items-center gap-1 text-red-400 text-sm">
+						<AlertCircle className="w-4 h-4" />
+						{errors.amount}
+					</div>
+				)}
 			</div>
 
 			{/* Connect Wallet Button */}
@@ -521,18 +604,18 @@ export default function TransferUI() {
 					color: isConnected && isFormValid ? 'white' : 'rgb(0, 41, 107)'
 				}}
 				onClick={isConnected ? handleApproveAndSend : () => connect({ connector: connectors[0] })}
-				disabled={txState !== 'idle'}
+				disabled={txState !== 'idle' && !(currentStep === 'approving' && isApproveSuccess)}
 			>
+				{txState === 'approving' && (
+					<>
+						<div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+						<span>Approving USDC...</span>
+					</>
+				)}
 				{txState === 'sending' && (
 					<>
 						<div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
 						<span>Sending...</span>
-					</>
-				)}
-				{txState === 'confirming' && (
-					<>
-						<div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
-						<span>Confirming...</span>
 					</>
 				)}
 				{txState === 'sent' && (
@@ -552,7 +635,12 @@ export default function TransferUI() {
 				{txState === 'idle' && isConnected && (
 					<>
 						<Send className="w-6 h-6" />
-						<span>{isFormValid ? 'Send Transfer' : 'Enter Details'}</span>
+						<span>
+							{isFormValid
+								? (currentStep === 'idle' ? 'Approve USDC' : 'Send Transfer')
+								: 'Enter Details'
+							}
+						</span>
 					</>
 				)}
 			</button>

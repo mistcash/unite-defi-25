@@ -21,7 +21,6 @@ const nextConfig: NextConfig = {
 
   // Universal settings
   reactStrictMode: true,
-  swcMinify: true,
 };
 
 export default nextConfig;

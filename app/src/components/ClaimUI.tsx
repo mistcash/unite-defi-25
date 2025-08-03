@@ -11,7 +11,6 @@ import {
 	User as FirebaseUser // Import the User type and alias it
 } from "firebase/auth";
 import { initializeApp, getApps, getApp, FirebaseApp } from "firebase/app"; // Import types for app initialization
-// import { getAnalytics } from "firebase/analytics"; // Not directly used in this component, but you have it in your config.
 
 // Your web app's Firebase configuration (copied from your starter code)
 const firebaseConfig = {
