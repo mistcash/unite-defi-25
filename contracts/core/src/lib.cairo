@@ -1,34 +1,53 @@
-mod merkle;
+pub mod merkle;
 
-/// Interface representing `HelloContract`.
-/// This interface allows modification and retrieval of the contract balance.
-#[starknet::interface]
-pub trait IHelloStarknet<TContractState> {
-    /// Increase contract balance.
-    fn increase_balance(ref self: TContractState, amount: felt252);
-    /// Retrieve contract balance.
-    fn get_balance(self: @TContractState) -> felt252;
-}
-
-/// Simple contract for managing balance.
 #[starknet::contract]
-mod HelloStarknet {
-    use core::starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+mod Core {
+    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
+    use starknet::ClassHash;
+    use starknet::ContractAddress;
+
+    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
+
+    // Ownable Mixin
+    #[abi(embed_v0)]
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
+    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
+
+    // Upgradeable
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
-        balance: felt252,
+        #[substorage(v0)]
+        ownable: OwnableComponent::Storage,
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        OwnableEvent: OwnableComponent::Event,
+        #[flat]
+        UpgradeableEvent: UpgradeableComponent::Event
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, owner: ContractAddress) {
+        self.ownable.initializer(owner);
     }
 
     #[abi(embed_v0)]
-    impl HelloStarknetImpl of super::IHelloStarknet<ContractState> {
-        fn increase_balance(ref self: ContractState, amount: felt252) {
-            assert(amount != 0, 'Amount cannot be 0');
-            self.balance.write(self.balance.read() + amount);
-        }
-
-        fn get_balance(self: @ContractState) -> felt252 {
-            self.balance.read()
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            // This function can only be called by the owner
+            self.ownable.assert_only_owner();
+            // Replace the class hash upgrading the contract
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

@@ -14,3 +14,11 @@ fn test_bn254_hasher() {
         'Incorrect hash',
     );
 }
+// // Main component
+// component main = Poseidon(2);
+
+// /* INPUT = {
+//     "inputs": ["22","77"]
+// } */
+
+
