@@ -189,3 +189,7 @@ fn get_next_level<T, +HasherTrait<T>, +Drop<T>>(
     }
     next_level
 }
+
+fn bn254_merkle() -> MerkleTree<BN254PoseidonHasher> {
+    MerkleTreeImpl::new()
+}
