@@ -1,3 +1,18 @@
+# MIST Unite Defi / Contracts
+
+Two contracts deployed,
+
+1. Core on Starknet
+  - Registers deposit
+  - Manages Merkle tree
+  - Inclusion proof verification
+  - JWT proof verification
+  - Authorize withdrawal
+2. Adapter on Base
+  - Accepts deposits
+  - Call Starknet for registering deposit
+  - Withdraw
+
 ## Hyperlane
 
 ### Hyperlane: Base Sepolia
