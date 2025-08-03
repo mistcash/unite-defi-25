@@ -2,12 +2,12 @@ import express, { Request, Response, NextFunction, Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
-import { generateJWT } from './routes/auth';
+import { generateJWT, generateJWTCircuitInputs } from './routes/auth';
 
 // Load environment variables
 dotenv.config();
 
-const app: Application = express();
+const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -22,6 +22,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 // API routes
 app.post('/generate-jwt', generateJWT);
+app.post('/jwt-with-circuit-inputs', generateJWTCircuitInputs);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
